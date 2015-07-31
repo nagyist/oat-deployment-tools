@@ -1,0 +1,12 @@
+{
+    "require": {
+        "maximebf/consolekit": ">=1.0.0",
+        "jdorn/file-system-cache": "dev-master"
+    },
+
+    "autoload": {
+        "psr-4": {
+        	 "oat\\deploymentsTools\\": "src\\oat-sa\\deploymentsTools"
+        }
+    }
+}
