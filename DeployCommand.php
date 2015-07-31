@@ -2,7 +2,7 @@
 
 require_once 'vendor/autoload.php';
 
-FileSystemCache::$cacheDir = 'data/';
+FileSystemCache::$cacheDir = __DIR__ . '/data/';
 
 $console = new ConsoleKit\Console();
 $console->addCommand('oat\deploymentsTools\AddCommand'); 
