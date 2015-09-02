@@ -1,0 +1,27 @@
+<style>
+    span.phing_err {
+        color: #ba2828;
+    }
+    span.phing_verbose {
+        color: #8c3265;
+    }
+    span.phing_debug {
+        color: #6c6c6c;
+    }
+    span.phing_warn {
+        color: #8c5633;
+    }
+    span.phing_info {
+        color: #8c8b32;
+    }
+</style>
+
+<strong>command </strong>
+<pre><?php echo $this->process->getCommandLine(); ?></pre>
+<strong>returnStatus</strong>
+<pre><?php echo $this->process->getExitCodeText(); ?></pre>
+<strong>output </strong>
+<pre><?php echo $this->process->getOutput(); ?></pre>
+<strong>error output </strong>
+<pre><?php echo $this->process->getErrorOutput(); ?></pre>
+
