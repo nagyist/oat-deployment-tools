@@ -10,7 +10,6 @@ return array(
     'modules' => array(
         
         'BsbPhingService',
-       // 'Application',
         'oat\deploymentsTools'
     ),
 

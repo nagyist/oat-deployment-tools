@@ -1,7 +1,6 @@
 {
     "require": {
 	"continuousphp/phing-tasks": "~0.1",
-	"zendframework/zendframework": "~2.5",
 	"bushbaby/zf2-module-phing-service":"~2.0"
 },
 
