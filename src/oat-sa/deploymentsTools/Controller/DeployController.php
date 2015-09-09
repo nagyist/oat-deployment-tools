@@ -31,8 +31,14 @@ class DeployController extends AbstractActionController
                 'buildFile' => self::DATA_PATH . 'build.xml',
             ));
 
-
-        file_put_contents()
+        $content = 'build resuld : ' . $buildResult;
+        $content .= 'package_url : '  . $parckageUrl;
+        $content .= 'test_package_url : '  . $testParckageUrl;
+        $content .= 'build_id : ' . $id;
+        
+        file_put_contents(self::DATA_PATH . 'results.txt',  $content);
+        
+        
         $view = new ViewModel();
         $view->setVariable('process', $buildResult);
 
