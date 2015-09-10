@@ -31,21 +31,7 @@ return array(
                 ),
             ),
          ),
-     ),
-    'console' => array(
-        'router' => array(
-            'routes' => array(
-                'deploy' => array(
-                    'options' => array(
-                         'route'    => 'help',
-                         'defaults' => array(
-                             'controller' => 'oat\deploymentsTools\Controller\Deploy',
-                             'action'     => 'help',
-                         ),
-                    ),
-                ),
-            ),
-        ),
+
     
           
     ),
@@ -59,7 +45,9 @@ return array(
                 'error/index'    => __DIR__ . '/../view/error/index.phtml',
                 'layout/layout'  => __DIR__ . '/../view/layout/layout.phtml',
         ),
-
+        'strategies' => array(
+            'ViewJsonStrategy',
+        ),
         'template_path_stack' => array(
                  __DIR__ . '/../view',
         ),

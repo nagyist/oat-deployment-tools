@@ -10,4 +10,6 @@ use Zend\ModuleManager\Feature\ConfigProviderInterface;
      {
          return include __DIR__ . '/config/module.config.php';
      }
+     
+
  }

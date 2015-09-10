@@ -3,8 +3,7 @@
 namespace oat\deploymentsTools\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ConsoleModel;
-use Zend\View\Model\ViewModel;
+use Zend\View\Model\JsonModel;
 
 class DeployController extends AbstractActionController
 {
@@ -42,19 +41,16 @@ class DeployController extends AbstractActionController
             ));
             
         
-        
-        $view = new ViewModel();
-        $view->setVariable('process', $buildResult);
+        $result = new JsonModel(array(
+            'cmd' => $buildResult->getCommandLine(),
+            'returnStatus' => $buildResult->getExitCodeText(),
+            'output' => $buildResult->getOutput(),
+            'error'  => $buildResult->getErrorOutput()
+        )); 
 
-        return $view;
+        
+        return $result;
     }
     
-    public function helpAction()
-    {
-        $model = new ConsoleModel();
-        
-        $model->setResult('No application found' . PHP_EOL);
-        
-        return $model;
-    }
+
 }
