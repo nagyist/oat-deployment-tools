@@ -8,8 +8,8 @@ use Zend\View\Model\ViewModel;
 
 class DeployController extends AbstractActionController
 {
+    
 
-    const DATA_PATH = __DIR__ . '/../../../../data/';
 
     /**
      * Runs example phing file and returns
@@ -19,24 +19,28 @@ class DeployController extends AbstractActionController
     public function runAction()
     {
         
-
+        $dataDir = __DIR__ . '/../../../../data/' ;
         $parckageUrl = $this->params()->fromPost('package_url');
         $testParckageUrl = $this->params()->fromPost('test_package_url');
         $id = $this->params()->fromPost('build_id');
+        
+
+
+
+        $content = 'package_url : '  . $parckageUrl;
+        $content .= 'test_package_url : '  . $testParckageUrl;
+        $content .= 'build_id : ' . $id;
+        
+        file_put_contents($dataDir . 'results.txt',  $content);
+
         
         $buildResult = $this
             ->getServiceLocator()
             ->get('BsbPhingService')
             ->build('test', array(
-                'buildFile' => self::DATA_PATH . 'build.xml',
+                'buildFile' => $dataDir . 'build.xml',
             ));
-
-        $content = 'build resuld : ' . $buildResult;
-        $content .= 'package_url : '  . $parckageUrl;
-        $content .= 'test_package_url : '  . $testParckageUrl;
-        $content .= 'build_id : ' . $id;
-        
-        file_put_contents(self::DATA_PATH . 'results.txt',  $content);
+            
         
         
         $view = new ViewModel();
