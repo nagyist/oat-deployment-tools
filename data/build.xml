@@ -1,5 +1,8 @@
 <project name="oat-deploy" default="help" basedir=".">
     <target name="test" description="List available targets">
-        <echo msg="IT s work ${test}" />
+        <echo msg="IT s work" />
+        <echo msg="package_url = ${package_url}" />
+         <echo msg="test_package_url = ${test_package_url}" />
+         <echo msg="build_id = ${build_id}" />
     </target>
 </project>

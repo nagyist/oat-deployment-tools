@@ -26,11 +26,11 @@ class DeployController extends AbstractActionController
 
 
 
-        $content = 'package_url : '  . $parckageUrl;
-        $content .= 'test_package_url : '  . $testParckageUrl;
-        $content .= 'build_id : ' . $id;
+        $content = PHP_EOL . 'package_url='  . $parckageUrl;
+        $content .= PHP_EOL .'test_package_url='  . $testParckageUrl;
+        $content .= PHP_EOL. 'build_id=' . $id;
         
-        file_put_contents($dataDir . 'results.txt',  $content);
+        file_put_contents($dataDir . 'deploy.properties',  $content);
 
         
         $buildResult = $this
@@ -38,6 +38,7 @@ class DeployController extends AbstractActionController
             ->get('BsbPhingService')
             ->build('test', array(
                 'buildFile' => $dataDir . 'build.xml',
+                'propertyfile' =>  $dataDir . 'deploy.properties'
             ));
             
         
