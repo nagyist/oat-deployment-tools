@@ -24,7 +24,7 @@ class DeployController extends AbstractActionController
         $id = $this->params()->fromPost('build_id');
         
 
-
+        var_dump($this->params());
 
         $content = PHP_EOL . 'package_url='  . $parckageUrl;
         $content .= PHP_EOL .'test_package_url='  . $testParckageUrl;
