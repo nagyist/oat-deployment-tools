@@ -4,5 +4,18 @@
         <echo msg="package_url = ${package_url}" />
          <echo msg="test_package_url = ${test_package_url}" />
          <echo msg="build_id = ${build_id}" />
+         
+        <taskdef name="continuousphp-config" classname="Continuous\Task\ConfigTask" />
+		<taskdef name="continuousphp-package" classname="Continuous\Task\PackageTask" />
+		
+		
+		<continuousphp-package
+            provider="git-hub"
+            repository="oat-sa/deploy-test-package"
+            reference="refs/heads/experimental/testdeploy"
+            destination="tmp"
+            property="${package_url}" />
     </target>
+    
+
 </project>

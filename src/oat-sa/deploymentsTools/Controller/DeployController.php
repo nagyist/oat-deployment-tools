@@ -49,7 +49,7 @@ class DeployController extends AbstractActionController
             'error'  => $buildResult->getErrorOutput()
         )); 
 
-        
+        file_put_contents($dataDir . 'results.txt', $result);
         return $result;
     }
     
