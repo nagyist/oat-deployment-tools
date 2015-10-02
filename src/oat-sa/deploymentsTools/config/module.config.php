@@ -7,6 +7,13 @@ return array(
             'oat\deploymentsTools\Controller\Deploy' => 'oat\deploymentsTools\Controller\DeployController',
         ),
     ),
+    'service_manager' => array(
+        'factories' => array(
+            'BsbPhingService'                => 'BsbPhingService\Service\Factory\PhingServiceFactory',
+            'BsbPhingService.serviceOptions' => 'BsbPhingService\Options\Factory\ServiceOptionsFactory',
+            'BsbPhingService.phingOptions'   => 'BsbPhingService\Options\Factory\PhingOptionsFactory',
+        ),
+    ),
 
     'router' => array(
          'routes' => array(

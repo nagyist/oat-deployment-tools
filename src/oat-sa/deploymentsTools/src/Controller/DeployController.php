@@ -43,11 +43,26 @@ class DeployController extends AbstractActionController
         $tar->setErrorHandling(PEAR_ERROR_EXCEPTION);
         $tar->extract($dataDir. 'extract');
         
+        
+        $buildResult = $this
+            ->getServiceLocator()
+            ->get('BsbPhingService')
+            ->build('test', array(
+                'buildFile' => $dataDir . 'build.xml',
+                'propertyfile' =>  $dataDir . 'deploy.properties'
+            ));
+        
+        //var_dump($buildResult);
+        
         return new JsonModel (array(
             'package' => $parckageUrl,
             'test' => $testParckageUrl,
             'id' => $id,
-            'response' => $response
+            'response' => $response,
+            'cmd' => $buildResult->getCommandLine(),
+            'returnStatus' => $buildResult->getExitCodeText(),
+            'output' => $buildResult->getOutput(),
+            'error'  => $buildResult->getErrorOutput()
         ));
     }
     

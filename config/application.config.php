@@ -29,6 +29,7 @@ return array(
             'config/autoload/{{,*.}global,{,*.}local}.php',
         ),
 
+
         // Whether or not to enable a configuration cache.
         // If enabled, the merged configuration will be cached and used in
         // subsequent requests.
