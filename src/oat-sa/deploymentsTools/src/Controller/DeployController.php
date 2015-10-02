@@ -36,7 +36,7 @@ class DeployController extends AbstractActionController
             $curl = new Curl();
             $curl->download($parckageUrl,$filename);
         }
-        $response =  $curl->response && is_file($filename) ? 'Success' : 'Failure';
+        $response =  $curl->response && is_file($filename) ? 'OK' : 'FAIL';
         
 
         $tar = new \Archive_Tar($filename, "gz");
@@ -47,22 +47,24 @@ class DeployController extends AbstractActionController
         $buildResult = $this
             ->getServiceLocator()
             ->get('BsbPhingService')
-            ->build('test', array(
-                'buildFile' => $dataDir . 'build.xml',
-                'propertyfile' =>  $dataDir . 'deploy.properties'
+            ->build('help', array(
+                'buildFile' => $dataDir. 'extract/' . $id . '/build.xml',
+                'propertyfile' =>  $dataDir . 'extract/' . $id . '/build.properties'
             ));
         
         //var_dump($buildResult);
+/*         echo 'cmd'. PHP_EOL . $buildResult->getCommandLine();
+         echo 'out' . PHP_EOL . $buildResult->getOutput();
+         echo 'errorout' . PHP_EOL . $buildResult->getErrorOutput();*/
+
         
         return new JsonModel (array(
             'package' => $parckageUrl,
             'test' => $testParckageUrl,
             'id' => $id,
-            'response' => $response,
-            'cmd' => $buildResult->getCommandLine(),
-            'returnStatus' => $buildResult->getExitCodeText(),
-            'output' => $buildResult->getOutput(),
-            'error'  => $buildResult->getErrorOutput()
+            'download' => $response,
+            'phingExitCode' => $buildResult->getExitCodeText(),
+
         ));
     }
     
