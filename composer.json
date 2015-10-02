@@ -1,12 +1,16 @@
 {
     "require": {
-	"continuousphp/phing-tasks": "~0.1",
-	"bushbaby/zf2-module-phing-service":"~2.0"
+    "zendframework/zendframework" : "~2.5",
+	"php-curl-class/php-curl-class" : "~4.6",
+	"pear/archive_tar" : "*"
 },
 
     "autoload": {
         "psr-4": {
-        	 "oat\\deploymentsTools\\": "src\\oat-sa\\deploymentsTools"
-        }
+        	 "oat\\deploymentsTools\\": "src\\oat-sa\\deploymentsTools\\src"
+        },
+        "classmap": [
+            "src/oat-sa/deploymentsTools/Module.php"
+        ]
     }
 }
