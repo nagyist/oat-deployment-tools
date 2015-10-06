@@ -25,6 +25,9 @@ class DeployController extends AbstractActionController
         $testParckageUrl = $this->params()->fromPost('test_package_url');
         $id = $this->params()->fromPost('build_id');
         
+        if($id == null){
+             return new JsonModel (array('error' => 'no id provided'));
+        }
 
         $filename = $dataDir. 'download/'. $id. '.tar.gz';
         
@@ -36,7 +39,7 @@ class DeployController extends AbstractActionController
             $curl = new Curl();
             $curl->download($parckageUrl,$filename);
         }
-        $response =  $curl->response && is_file($filename) ? 'OK' : 'FAIL';
+        $response =  is_file($filename) && $curl->response ? 'OK' : 'FAIL';
         
 
         $tar = new \Archive_Tar($filename, "gz");
