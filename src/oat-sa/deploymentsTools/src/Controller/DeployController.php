@@ -31,7 +31,7 @@ class DeployController extends AbstractActionController
 
         mkdir($dataDir . $id );
         $dataDir = $dataDir . $id . '/';
-        mkdir($dataDir . $id. 'download/' );
+        mkdir($dataDir . 'download/' );
         $filename = $dataDir. 'download/'. $id. '.tar.gz';
         
         
