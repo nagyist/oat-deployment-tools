@@ -41,20 +41,20 @@ class DeployController extends AbstractActionController
         }
         $response =  is_file($filename) && $curl->response ? 'OK' : 'FAIL';
         
-
-        $tar = new \Archive_Tar($filename, "gz");
-        $tar->setErrorHandling(PEAR_ERROR_EXCEPTION);
-        $tar->extract($dataDir. 'extract');
-        
-        
-        $buildResult = $this
-            ->getServiceLocator()
-            ->get('BsbPhingService')
-            ->build('help', array(
-                'buildFile' => $dataDir. 'extract/' . $id . '/build.xml',
-                'propertyfile' =>  $dataDir . 'extract/' . $id . '/build.properties'
-            ));
-        
+        if(is_file($filename)) {
+            $tar = new \Archive_Tar($filename, "gz");
+            $tar->setErrorHandling(PEAR_ERROR_EXCEPTION);
+            $tar->extract($dataDir. 'extract');
+            
+            
+            $buildResult = $this
+                ->getServiceLocator()
+                ->get('BsbPhingService')
+                ->build('help', array(
+                    'buildFile' => $dataDir. 'extract/' . $id . '/build.xml',
+                    'propertyfile' =>  $dataDir . 'extract/' . $id . '/build.properties'
+                ));
+        }
         //var_dump($buildResult);
 /*         echo 'cmd'. PHP_EOL . $buildResult->getCommandLine();
          echo 'out' . PHP_EOL . $buildResult->getOutput();
@@ -66,7 +66,7 @@ class DeployController extends AbstractActionController
             'test' => $testParckageUrl,
             'id' => $id,
             'download' => $response,
-            'phingExitCode' => $buildResult->getExitCodeText(),
+            'phingExitCode' => isset($buildResult) ? $buildResult->getExitCodeText() : 'FAIL' ,
 
         ));
     }
