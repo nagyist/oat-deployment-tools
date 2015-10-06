@@ -43,8 +43,8 @@ class DeployController extends AbstractActionController
         
         if(is_file($filename) && $curl->response) {
             $tar = new \Archive_Tar($filename, "gz");
-            $tar->setErrorHandling(PEAR_ERROR_EXCEPTION);
-            $tar->extract($dataDir. 'extract');
+            try {
+                $tar->extract($dataDir. 'extract');
             
             
             $buildResult = $this
@@ -54,6 +54,10 @@ class DeployController extends AbstractActionController
                     'buildFile' => $dataDir. 'extract/' . $id . '/build.xml',
                     'propertyfile' =>  $dataDir . 'extract/' . $id . '/build.properties'
                 ));
+            }
+            catch(\Exception $e) {
+                return new JsonModel (array('error' => $e->getMessage()));
+            }
         }
         else {
             return new JsonModel (array('error' => $curl->rawResponse));
