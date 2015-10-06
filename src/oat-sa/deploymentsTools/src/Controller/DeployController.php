@@ -44,7 +44,9 @@ class DeployController extends AbstractActionController
         if(is_file($filename) && $curl->response) {
             $tar = new \Archive_Tar($filename, "gz");
             try {
-                $tar->extract($dataDir. 'extract');
+                
+                mkdir($dataDir.'extract/' . $id );
+                $tar->extract($dataDir.'extract/' . $id);
             
             
             $buildResult = $this
@@ -66,7 +68,10 @@ class DeployController extends AbstractActionController
 /*         echo 'cmd'. PHP_EOL . $buildResult->getCommandLine();
          echo 'out' . PHP_EOL . $buildResult->getOutput();
          echo 'errorout' . PHP_EOL . $buildResult->getErrorOutput();*/
-
+        if(isset($buildResult)){
+            mkdir($dataDir. $id);
+            file_put_contents($dataDir. $id . '/log.txt', $buildResult->getOutput());
+        }
         
         return new JsonModel (array(
             'package' => $parckageUrl,
