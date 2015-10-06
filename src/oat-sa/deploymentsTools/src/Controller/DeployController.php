@@ -72,8 +72,8 @@ class DeployController extends AbstractActionController
          echo 'out' . PHP_EOL . $buildResult->getOutput();
          echo 'errorout' . PHP_EOL . $buildResult->getErrorOutput();*/
         if(isset($buildResult)){
-            mkdir($dataDir. 'log/' . $id);
-            file_put_contents($dataDir. $id . '/log.txt', $buildResult->getOutput());
+            mkdir($dataDir. 'log/');
+            file_put_contents($dataDir. 'log/phing.log', $buildResult->getOutput());
         }
         
         return new JsonModel (array(
