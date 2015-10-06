@@ -20,7 +20,7 @@ class DeployController extends AbstractActionController
     public function runAction()
     {
         
-        $dataDir = '/var/www/html/deployment-tools/data/';
+        $dataDir = '/var/www/html/deployment-tools/data/build/';
         $parckageUrl = $this->params()->fromPost('package_url');
         $testParckageUrl = $this->params()->fromPost('test_package_url');
         $id = $this->params()->fromPost('build_id');
@@ -29,6 +29,8 @@ class DeployController extends AbstractActionController
              return new JsonModel (array('error' => 'no id provided'));
         }
 
+        mkdir($dataDir . $id );
+        $dataDir = $dataDir . $id . '/';
         $filename = $dataDir. 'download/'. $id. '.tar.gz';
         
         
@@ -45,16 +47,16 @@ class DeployController extends AbstractActionController
             $tar = new \Archive_Tar($filename, "gz");
             try {
                 
-                mkdir($dataDir.'extract/' . $id );
-                $tar->extract($dataDir.'extract/' . $id);
+                mkdir($dataDir.'extract' );
+                $tar->extract($dataDir.'extract');
             
             
             $buildResult = $this
                 ->getServiceLocator()
                 ->get('BsbPhingService')
                 ->build('help', array(
-                    'buildFile' => $dataDir. 'extract/' . $id . '/build.xml',
-                    'propertyfile' =>  $dataDir . 'extract/' . $id . '/build.properties'
+                    'buildFile' => $dataDir. 'extract/build.xml',
+                    'propertyfile' =>  $dataDir . 'extract/build.properties'
                 ));
             }
             catch(\Exception $e) {
@@ -69,7 +71,7 @@ class DeployController extends AbstractActionController
          echo 'out' . PHP_EOL . $buildResult->getOutput();
          echo 'errorout' . PHP_EOL . $buildResult->getErrorOutput();*/
         if(isset($buildResult)){
-            mkdir($dataDir. $id);
+            mkdir($dataDir. 'log/' . $id);
             file_put_contents($dataDir. $id . '/log.txt', $buildResult->getOutput());
         }
         
