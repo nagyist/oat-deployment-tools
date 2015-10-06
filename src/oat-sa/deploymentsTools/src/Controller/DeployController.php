@@ -20,7 +20,7 @@ class DeployController extends AbstractActionController
     public function runAction()
     {
         
-        $dataDir = '/home/ubuntu/workspace/data/';
+        $dataDir = '/var/www/html/deployment-tools/data/';
         $parckageUrl = $this->params()->fromPost('package_url');
         $testParckageUrl = $this->params()->fromPost('test_package_url');
         $id = $this->params()->fromPost('build_id');
