@@ -12,6 +12,7 @@ return array(
             'BsbPhingService'                => 'BsbPhingService\Service\Factory\PhingServiceFactory',
             'BsbPhingService.serviceOptions' => 'BsbPhingService\Options\Factory\ServiceOptionsFactory',
             'BsbPhingService.phingOptions'   => 'BsbPhingService\Options\Factory\PhingOptionsFactory',
+            'DeployService'                  => 'oat\deploymentsTools\Service\Factory\DeployServiceFactory'
         ),
     ),
 

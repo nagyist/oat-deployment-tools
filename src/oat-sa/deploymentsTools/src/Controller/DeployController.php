@@ -1,5 +1,25 @@
 <?php
 
+/**  
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; under version 2
+* of the License (non-upgradable).
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*
+* Copyright (c) 2015 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+*/
+
+
+
 namespace oat\deploymentsTools\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
@@ -11,7 +31,6 @@ class DeployController extends AbstractActionController
 {
     
 
-
     /**
      * Runs example phing file and returns
      *
@@ -19,71 +38,51 @@ class DeployController extends AbstractActionController
      */
     public function runAction()
     {
-        
-        $dataDir = '/var/www/html/deployment-tools/data/build/';
+        $dataDir = realpath('data') . '/build/';
         $parckageUrl = $this->params()->fromPost('package_url');
         $testParckageUrl = $this->params()->fromPost('test_package_url');
         $id = $this->params()->fromPost('build_id');
+        $deployService = $this->getServiceLocator()->get('DeployService');
         
         if($id == null){
-             return new JsonModel (array('error' => 'no id provided'));
+            return new JsonModel (
+                array(
+                    'success' => false,
+                    'error' => 'no id provided'
+                )
+            );
+        }
+        $filename = null;
+        if(@mkdir($dataDir . $id )){
+           $deployService->setBuildFolder($dataDir . $id);
+           $result = $deployService->downloadBuild($parckageUrl, $id);
+
+        } else {
+            return new JsonModel (
+                    array(
+                        'success' => false,
+                        'error' => 'Unable to create build folder check privilege or build already exists'
+                    )
+                );
         }
 
-        mkdir($dataDir . $id );
-        $dataDir = $dataDir . $id . '/';
-        mkdir($dataDir . 'download/' );
-        $filename = $dataDir. 'download/'. $id. '.tar.gz';
-        
-        
-        if($parckageUrl != null) {
-            if(is_file($filename)){
-                unlink($filename);
-            }
-            $curl = new Curl();
-            $curl->download($parckageUrl,$filename);
-        }
-        $response =  is_file($filename) && $curl->response ? 'OK' : 'FAIL';
-        
-        if(is_file($filename) && $curl->response) {
-            $tar = new \Archive_Tar($filename, "gz");
-            try {
-                
-                mkdir($dataDir.'extract' );
-                $tar->extract($dataDir.'extract');
-            
-            
-            $buildResult = $this
-                ->getServiceLocator()
-                ->get('BsbPhingService')
-                ->build('help', array(
-                    'buildFile' => $dataDir. 'extract/build.xml',
-                    'propertyfile' =>  $dataDir . 'extract/build.properties'
-                ));
-            }
-            catch(\Exception $e) {
-                return new JsonModel (array('error' => $e->getMessage()));
-            }
+        if($result['success']) {
+            $destination = $dataDir.$id.'/tmp/';
+            $result = $deployService->extractBuild($result['filename'], $destination);
         }
         else {
-            return new JsonModel (array('error' => $curl->rawResponse));
+            return  new JsonModel ($result);
         }
-        //var_dump($buildResult);
-/*         echo 'cmd'. PHP_EOL . $buildResult->getCommandLine();
-         echo 'out' . PHP_EOL . $buildResult->getOutput();
-         echo 'errorout' . PHP_EOL . $buildResult->getErrorOutput();*/
-        if(isset($buildResult)){
-            mkdir($dataDir. 'log/');
-            file_put_contents($dataDir. 'log/phing.log', $buildResult->getOutput());
+      
+        if($result['success']) {
+            $result = $deployService->runPhingTask(
+                $destination . 'build.xml', 
+                'help' ,
+                 $destination .'build.properties' 
+            );
         }
         
-        return new JsonModel (array(
-            'package' => $parckageUrl,
-            'test' => $testParckageUrl,
-            'id' => $id,
-            'download' => $response,
-            'phingExitCode' => isset($buildResult) ? $buildResult->getExitCodeText() : 'FAIL' ,
-
-        ));
+        return new JsonModel ($result);
     }
     
 
