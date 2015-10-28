@@ -20,12 +20,24 @@
 
 namespace oat\deploymentsTools\Controller;
 
+use oat\deploymentsTools\Job\UnpackJob;
 use oat\deploymentsTools\Service\DeployService;
+use SlmQueue\Queue\QueueInterface;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\JsonModel;
 
 class DeployController extends AbstractActionController
 {
+    protected $queue;
+
+    /**
+     * DeployController constructor.
+     */
+    public function __construct(QueueInterface $queue)
+    {
+        $this->queue = $queue;
+    }
+
 
     /**
      * Runs example phing file and returns
@@ -58,22 +70,19 @@ class DeployController extends AbstractActionController
                 'error'   => 'Unable to create build folder check privilege or build already exists'
             ]);
         }
-
         if ($result['success']) {
             $destination = $dataDir . $id . '/tmp/';
-            $result      = $deployService->extractBuild($result['filename'], $destination);
+
+            $job = new UnpackJob();
+            $job->setContent([
+                'filename'    => $result['filename'],
+                'destination' => $destination
+            ]);
+            $this->queue->push($job);
         } else {
             return new JsonModel ($result);
         }
 
-        if ($result['success']) {
-            $result = $deployService->runPhingTask(
-                $destination . 'build.xml',
-                'help',
-                $destination . 'build.properties'
-            );
-        }
-        
         return new JsonModel ($result);
     }
 

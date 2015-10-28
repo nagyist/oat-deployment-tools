@@ -40,7 +40,7 @@ class DeployService
         if (null === $url) {
             return [
                 'success' => false,
-                'error'   => 'No url provided'
+                'error'   => 'Url has not been set'
             ];
         }
 

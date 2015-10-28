@@ -1,10 +1,11 @@
 <?php
+namespace oat\deploymentsTools;
 
 return array(
     
     'controllers'     => array(
         'invokables' => array(
-            'oat\deploymentsTools\Controller\Deploy' => 'oat\deploymentsTools\Controller\DeployController',
+//            'DeployController' => 'oat\deploymentsTools\Controller\DeployController',
         ),
     ),
     'service_manager' => array(
@@ -33,7 +34,7 @@ return array(
                 'options' => array(
                      'route'    => '/deploy',
                      'defaults' => array(
-                         'controller' => 'oat\deploymentsTools\Controller\Deploy',
+                         'controller' => 'DeployController',
                          'action'     => 'run',
                      ),
                 ),
@@ -62,4 +63,21 @@ return array(
 
     ),
 
+    'doctrine' => array(
+        'driver' => array(
+             __NAMESPACE__ . '_driver' => array(
+                'class' => 'Doctrine\ORM\Mapping\Driver\AnnotationDriver',
+                'cache' => 'array',
+                'paths' => array(
+                    __DIR__ . '/../src/Entity'
+                ),
+            ),
+
+            'orm_default' => array(
+                'drivers' => array(
+                    __NAMESPACE__ . '\Entity' => __NAMESPACE__ . '_driver'
+                )
+            )
+        )
+    ),
 );
