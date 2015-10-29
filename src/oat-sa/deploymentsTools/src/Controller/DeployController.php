@@ -20,7 +20,7 @@
 
 namespace oat\deploymentsTools\Controller;
 
-use oat\deploymentsTools\Job\UnpackJob;
+use oat\deploymentsTools\Job\UnPackJob;
 use oat\deploymentsTools\Service\DeployService;
 use SlmQueue\Queue\QueueInterface;
 use Zend\Mvc\Controller\AbstractActionController;
