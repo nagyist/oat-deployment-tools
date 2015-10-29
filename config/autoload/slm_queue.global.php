@@ -89,8 +89,10 @@ return array(
          */
         'job_manager' => array(
             'invokables' => array(
-                'DeployJob' => 'oat\oat\deploymentsTools\Job\DeployJob',
+                'InstallJob'  => 'oat\oat\deploymentsTools\Job\InstallJob',
                 'UnPackJob' => 'oat\oat\deploymentsTools\Job\UnpackJob',
+                'SyncJob'   => 'oat\oat\deploymentsTools\Job\SyncJob',
+                'BackupJob' => 'oat\oat\deploymentsTools\Job\BackupJob',
             ),
         ),
 

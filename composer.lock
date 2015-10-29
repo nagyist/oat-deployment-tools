@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b4f66d5a90bfa5137febddda7282000c",
-    "content-hash": "e09a260260f62cc5437c6da3d3a2487c",
+    "hash": "46f5e698b271038b3cfcf87bc7e749e1",
+    "content-hash": "6cd53eee5812e71ea8014adb438a65a8",
     "packages": [
         {
             "name": "bushbaby/zf2-module-phing-service",
@@ -915,6 +915,50 @@
                 "orm"
             ],
             "time": "2015-08-31 12:59:39"
+        },
+        {
+            "name": "enlitepro/enlite-monolog",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/enlitepro/enlite-monolog.git",
+                "reference": "85c4881c2a75a62f793b065764d76c32839974f3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/enlitepro/enlite-monolog/zipball/85c4881c2a75a62f793b065764d76c32839974f3",
+                "reference": "85c4881c2a75a62f793b065764d76c32839974f3",
+                "shasum": ""
+            },
+            "require": {
+                "monolog/monolog": "~1.6",
+                "zendframework/zendframework": "~2.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~3.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "EnliteMonolog": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Evgeny Shpilevsky",
+                    "email": "evgeny@shpilevsky.com"
+                }
+            ],
+            "description": "Monolog integration to Zend Framework 2",
+            "keywords": [
+                "monolog",
+                "zend framework 2"
+            ],
+            "time": "2015-05-04 09:27:35"
         },
         {
             "name": "guzzlehttp/command",
@@ -5701,8 +5745,10 @@
     ],
     "packages-dev": [],
     "aliases": [],
-    "minimum-stability": "stable",
-    "stability-flags": [],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "enlitepro/enlite-monolog": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

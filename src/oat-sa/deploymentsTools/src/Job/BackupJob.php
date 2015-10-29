@@ -21,9 +21,8 @@
 namespace oat\deploymentsTools\Job;
 
 use oat\deploymentsTools\Service\DeployService;
-use SlmQueue\Worker\WorkerEvent;
 
-class UnpackJob extends AbstractJob
+class BackupJob extends AbstractJob
 {
 
     public function execute()
@@ -31,35 +30,27 @@ class UnpackJob extends AbstractJob
         $payload = $this->getContent();
         /** @var DeployService $deployService */
         $deployService = $this->getServiceLocator()->get('DeployService');
+        $deployService->setBuildFolder($payload['buildFolder']);
 
-        $result = $deployService->extractBuild($payload['filename'], $payload['destination']);
-
-        if ( ! $result['success']) {
-            return WorkerEvent::JOB_STATUS_FAILURE_RECOVERABLE;
-        }
-
-        $result['success'] = $result['success'] && file_exists($payload['destination'] . 'continuousphp.package');
-        $versionFile       = file_get_contents($payload['destination'] . 'continuousphp.package');
-        $packageInfo       = json_decode($versionFile, true);
-        $result['success'] = $result['success'] && isset( $packageInfo['build_id'] ) && isset( $packageInfo['ref'] ) && isset( $packageInfo['commit'] );
-
-        if ( ! $result['success']){
-            $this->getServiceLocator()->get('BuildLogService')->addDebug('incorrect package info provided',
-                ['packageInfo' => $packageInfo]);
-        }
-
+        $result = $deployService->runPhingTask(
+            $payload['buildfile'],
+            'do_full_backup',
+            $payload['propertyfile'],
+            $payload['packageInfo']
+        );
 
         if ($result['success']) {
-            $job = new BackupJob();
+            $job = new SyncJob();
             $job->setContent([
                 'destination'  => $payload['destination'],
                 'buildfile'    => $payload['destination'] . 'build.xml',
                 'propertyfile' => $payload['destination'] . 'build.properties',
                 'buildFolder'  => $payload['buildFolder'],
-                'packageInfo'  => $packageInfo,
+                'packageInfo'  => $payload['packageInfo'],
+
             ]);
             $this->getQueue()->push($job);
         }
-
     }
+
 }

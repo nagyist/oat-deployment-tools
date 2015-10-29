@@ -20,24 +20,28 @@
 
 namespace oat\deploymentsTools\Job;
 
+use oat\deploymentsTools\Service\DeployService;
 use SlmQueue\Worker\WorkerEvent;
 
-class DeployJob extends AbstractJob
+class InstallJob extends AbstractJob
 {
 
     public function execute()
     {
-        $payload       = $this->getContent();
+        $payload = $this->getContent();
+        /** @var DeployService $deployService */
         $deployService = $this->getServiceLocator()->get('DeployService');
+        $deployService->setBuildFolder($payload['buildFolder']);
 
 
         $result = $deployService->runPhingTask(
             $payload['buildfile'],
             $payload['task'],
-            $payload['propertyfile']
+            $payload['propertyfile'],
+            $payload['packageInfo']
         );
 
-        if (!$result['success']){
+        if ( ! $result['success']) {
             return WorkerEvent::JOB_STATUS_FAILURE_RECOVERABLE;
         }
 

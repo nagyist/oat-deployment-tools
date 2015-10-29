@@ -22,13 +22,20 @@ namespace oat\deploymentsTools\Service;
 
 use BsbPhingService\Service\PhingService;
 use Curl\Curl;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\RotatingFileHandler;
+use Monolog\Logger;
 use UnexpectedValueException;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
-class DeployService
+class DeployService implements ServiceLocatorAwareInterface
 {
-    private $buildFolder;
+    use ServiceLocatorAwareTrait;
 
-    private $serviceLocator;
+    /** @var  Logger */
+    protected $logger;
+    private $buildFolder;
 
     public function __construct($serviceLocator)
     {
@@ -43,6 +50,10 @@ class DeployService
                 'error'   => 'Url has not been set'
             ];
         }
+
+        /** @var  Logger $logger */
+        $logger = $this->getServiceLocator()->get('BuildLogService');
+        $logger->addInfo('Download initiated', ['package_url' => $url, 'build_id' => $id]);
 
         if ( ! is_dir($this->getBuildFolder() . '/download/')) {
             mkdir($this->getBuildFolder() . '/download/');
@@ -86,7 +97,7 @@ class DeployService
     }
 
 
-    public function runPhingTask($buildFile, $task, $propertyFile = null)
+    public function runPhingTask($buildFile, $task, $propertyFile = null, array $payload = [])
     {
 
         $buildParams = array(
@@ -96,19 +107,20 @@ class DeployService
         if ( ! is_null($propertyFile)) {
             $buildParams['propertyfile'] = $propertyFile;
         }
+
         /** @var PhingService $BsbPhingService */
         $BsbPhingService = $this->getServiceLocator()->get('BsbPhingService');
+        $logger          = $this->getPackageLogger();
 
-        $buildResult = $BsbPhingService->build($task, $buildParams);
+        $this->getServiceLocator()->get('BuildLogService')->addInfo(sprintf('Task %s has been started', $task),
+            ['package' => $payload]);
+
+        $buildResult = $BsbPhingService->build($task, $buildParams, false);
+        $buildResult->run(function ($type, $buffer) use ($logger) {
+            $logger->addDebug($buffer);
+        });
 
         if (isset( $buildResult )) {
-            if ( ! is_dir($this->getBuildFolder() . '/log/')) {
-                mkdir($this->getBuildFolder() . '/log/');
-            }
-            file_put_contents(
-                $this->getBuildFolder() . '/log/phing.log',
-                $buildResult->getOutput()
-            );
 
             return [
                 'success'       => true,
@@ -135,9 +147,23 @@ class DeployService
         return $this->buildFolder;
     }
 
-    private function getServiceLocator()
+    /**
+     * Set up extra channel per package
+     * @return Logger
+     */
+    protected function getPackageLogger()
     {
-        return $this->serviceLocator;
+        if ( ! $this->logger) {
+            /** @var  Logger $logger */
+            $logger  = new Logger('Phing');
+            $handler = (new RotatingFileHandler($this->getBuildFolder() . '/log/phing.log'))
+                ->setFormatter(new LineFormatter());
+            $logger->pushHandler($handler);
+            $this->logger = $logger;
+        }
+
+
+        return $this->logger;
     }
 
 }

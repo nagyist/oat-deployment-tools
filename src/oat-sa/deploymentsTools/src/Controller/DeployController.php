@@ -76,14 +76,18 @@ class DeployController extends AbstractActionController
             $job = new UnpackJob();
             $job->setContent([
                 'filename'    => $result['filename'],
-                'destination' => $destination
+                'destination' => $destination,
+                'buildFolder' => $deployService->getBuildFolder(),
             ]);
             $this->queue->push($job);
         } else {
             return new JsonModel ($result);
         }
 
-        return new JsonModel ($result);
+        return new JsonModel ([
+            'success' => true,
+            'text'    => 'Deployment job has been scheduled'
+        ]);
     }
 
 }
