@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "46f5e698b271038b3cfcf87bc7e749e1",
-    "content-hash": "6cd53eee5812e71ea8014adb438a65a8",
+    "hash": "11d563a659bf0c72db469a21dd16602a",
+    "content-hash": "fcba271a2f35440e5cb025e302059ed7",
     "packages": [
         {
             "name": "bushbaby/zf2-module-phing-service",
@@ -2766,6 +2766,52 @@
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
             "time": "2015-10-20 14:38:46"
+        },
+        {
+            "name": "symfony/finder",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/finder.git",
+                "reference": "ec67ae3149ee985775a374c6ae1a1f58013e9671"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/ec67ae3149ee985775a374c6ae1a1f58013e9671",
+                "reference": "ec67ae3149ee985775a374c6ae1a1f58013e9671",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Finder\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Finder Component",
+            "homepage": "https://symfony.com",
+            "time": "2015-10-11 09:14:55"
         },
         {
             "name": "symfony/process",
@@ -5747,7 +5793,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "enlitepro/enlite-monolog": 20
+        "enlitepro/enlite-monolog": 20,
+        "symfony/finder": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

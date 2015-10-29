@@ -20,6 +20,7 @@
 
 namespace oat\deploymentsTools\Controller;
 
+use Monolog\Logger;
 use oat\deploymentsTools\Job\UnpackJob;
 use oat\deploymentsTools\Service\DeployService;
 use SlmQueue\Queue\QueueInterface;

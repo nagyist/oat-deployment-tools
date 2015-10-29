@@ -6,12 +6,12 @@ use Doctrine\ORM\Mapping as ORM;
 use DateTime;
 
 /**
- * DefaultQueue
+ * DeployQueue
  *
- * @ORM\Table(name="queue_default", indexes={@ORM\Index(name="queue_default_idx", columns={"id", "status"})})
+ * @ORM\Table(name="deploy_queue", indexes={@ORM\Index(name="queue_default_idx", columns={"id", "status"})})
  * @ORM\Entity()
  */
-class DefaultQueue
+class DeployQueue
 {
     /**
      * @var integer
@@ -100,7 +100,7 @@ class DefaultQueue
      * Set queue
      *
      * @param string $queue
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setQueue($queue)
     {
@@ -123,7 +123,7 @@ class DefaultQueue
      * Set data
      *
      * @param string $data
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setData($data)
     {
@@ -146,7 +146,7 @@ class DefaultQueue
      * Set status
      *
      * @param int $status
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setStatus($status)
     {
@@ -169,7 +169,7 @@ class DefaultQueue
      * Set created
      *
      * @param \DateTime $created
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setCreated(DateTime $created)
     {
@@ -196,7 +196,7 @@ class DefaultQueue
      * Set scheduled
      *
      * @param \DateTime $scheduled
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setScheduled(DateTime $scheduled)
     {
@@ -223,7 +223,7 @@ class DefaultQueue
      * Set executed
      *
      * @param \DateTime $executed
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setExecuted(DateTime $executed = null)
     {
@@ -250,7 +250,7 @@ class DefaultQueue
      * Set finished
      *
      * @param \DateTime $finished
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setFinished(DateTime $finished = null)
     {
@@ -277,7 +277,7 @@ class DefaultQueue
      * Set message
      *
      * @param string $message
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setMessage($message)
     {
@@ -300,7 +300,7 @@ class DefaultQueue
      * Set trace
      *
      * @param string $trace
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setTrace($trace)
     {

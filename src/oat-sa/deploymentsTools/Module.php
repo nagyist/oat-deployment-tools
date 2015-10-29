@@ -24,7 +24,7 @@ class Module implements ConfigProviderInterface
                     $parentLocator = $cm->getServiceLocator();
                     $queueManager  = $parentLocator->get('SlmQueue\Queue\QueuePluginManager');
 
-                    $queue = $queueManager->get('default');
+                    $queue = $queueManager->get('deploy');
 
                     $controller = new DeployController($queue);
 

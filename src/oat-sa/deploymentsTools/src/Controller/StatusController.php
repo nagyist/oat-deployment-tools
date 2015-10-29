@@ -34,10 +34,10 @@ class StatusController extends AbstractActionController
         /** @var \Doctrine\ORM\EntityManager $em */
         $em = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
 
-        $entries = $em->getRepository('oat\deploymentsTools\Entity\DefaultQueue')->findAll();
+        $entries = $em->getRepository('oat\deploymentsTools\Entity\DeployQueue')->findAll();
 
         /** @var \SlmQueueDoctrine\Queue\DoctrineQueue $q */
-        $q = $this->getServiceLocator()->get('SlmQueue\Queue\QueuePluginManager')->get('default');
+        $q = $this->getServiceLocator()->get('SlmQueue\Queue\QueuePluginManager')->get('deploy');
 
 
         return new ViewModel(['entries' => $entries, 'q' => $q]);

@@ -120,13 +120,15 @@ class DeployService implements ServiceLocatorAwareInterface
             $logger->addDebug($buffer);
         });
 
-        if (isset( $buildResult )) {
+        if (isset( $buildResult ) && $buildResult->isSuccessful()) {
 
             return [
                 'success'       => true,
                 'phingExitCode' => $buildResult->getExitCodeText()
             ];
         } else {
+            $this->getServiceLocator()->get('BuildLogService')->addInfo(sprintf('Task %s failed with %s %s', $task,
+                $buildResult->getExitCode(), $buildResult->getExitCodeText()));
             return [
                 'success' => false,
             ];
