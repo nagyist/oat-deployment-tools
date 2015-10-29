@@ -23,7 +23,7 @@ namespace oat\deploymentsTools\Job;
 use oat\deploymentsTools\Service\DeployService;
 use SlmQueue\Worker\WorkerEvent;
 
-class UnpackJob extends AbstractJob
+class UnPackJob extends AbstractJob
 {
 
     public function execute()
