@@ -6,6 +6,7 @@ return array(
     'controllers'     => [
         'invokables' => [
 //            'DeployController' => 'oat\deploymentsTools\Controller\DeployController',
+              'StatusController' => 'oat\deploymentsTools\Controller\StatusController',
         ],
     ],
     'service_manager' => [
@@ -26,6 +27,38 @@ return array(
                      'defaults' => [
                          'controller' => 'DeployController',
                          'action'     => 'run',
+                     ],
+                ],
+            ],
+
+            'queue' => [
+                'type'    => 'segment',
+                'options' => [
+                     'route'    => '/queue',
+                     'defaults' => [
+                         'controller' => 'StatusController',
+                         'action'     => 'queue',
+                     ],
+                ],
+            ],
+            'logs' => [
+                'type'    => 'segment',
+                'options' => [
+                     'route'    => '/logs',
+                     'defaults' => [
+                         'controller' => 'StatusController',
+                         'action'     => 'showLogs',
+                     ],
+                ],
+            ],
+
+            'log' => [
+                'type'    => 'segment',
+                'options' => [
+                     'route'    => '/logs/show[/:file]',
+                     'defaults' => [
+                         'controller' => 'StatusController',
+                         'action'     => 'log',
                      ],
                 ],
             ],

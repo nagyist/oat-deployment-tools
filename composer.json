@@ -9,7 +9,8 @@
         "slm/queue": "^0.4.2",
         "slm/queue-doctrine": "^0.4.1",
         "doctrine/doctrine-orm-module": "^0.9.2",
-        "enlitepro/enlite-monolog": "dev-master"
+        "enlitepro/enlite-monolog": "dev-master",
+        "symfony/finder": "^3.0@dev"
 },
     "minimum-stability": "dev",
 
