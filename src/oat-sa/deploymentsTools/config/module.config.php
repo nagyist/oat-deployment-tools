@@ -19,16 +19,6 @@ return array(
 
     'router' => [
          'routes' => [
-            'phingService' => [
-                'type'    => 'segment',
-                'options' => [
-                     'route'    => '/phingService',
-                     'defaults' => [
-                         'controller' => 'BsbPhingService\Controller\Index',
-                         'action'     => 'index',
-                     ],
-                ],
-            ],
             'deploy' => [
                 'type'    => 'segment',
                 'options' => [
