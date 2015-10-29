@@ -73,7 +73,7 @@ class DeployController extends AbstractActionController
         if ($result['success']) {
             $destination = $dataDir . $id . '/tmp/';
 
-            $job = new UnpackJob();
+            $job = new UnPackJob();
             $job->setContent([
                 'filename'    => $result['filename'],
                 'destination' => $destination,
