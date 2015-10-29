@@ -1,0 +1,18 @@
+<table class="table table-striped">
+    <th>
+    <td>Name</td>
+    <td>Show</td>
+    </th>
+
+    <?php
+    /** @var \Symfony\Component\Finder\SplFileInfo $log */
+    foreach ($result as $log) { ?>
+        <tr>
+            <td></td>
+            <td><?= $log->getRealPath() ?></td>
+            <td><a target="_blank" href="<?= $this->url('log', ['file' => rawurlencode($log->getRealPath())]); ?>">Show</a></td>
+        </tr>
+    <?php } ?>
+
+</table>
+

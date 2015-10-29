@@ -4,8 +4,15 @@
 	"bushbaby/zf2-module-phing-service":"~2.0",
 	"zendframework/zendframework" : "~2.5",
 	"php-curl-class/php-curl-class" : "~4.6",
-	"pear/archive_tar" : "*"
+	"pear/archive_tar" : "*",
+        "monolog/monolog": "^1.17",
+        "slm/queue": "^0.4.2",
+        "slm/queue-doctrine": "^0.4.1",
+        "doctrine/doctrine-orm-module": "^0.9.2",
+        "enlitepro/enlite-monolog": "dev-master",
+        "symfony/finder": "^3.0@dev"
 },
+    "minimum-stability": "dev",
 
     "autoload": {
         "psr-4": {

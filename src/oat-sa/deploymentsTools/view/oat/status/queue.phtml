@@ -1,0 +1,27 @@
+<table class="table table-striped">
+    <th>
+        <td>Id</td>
+        <td>Job</td>
+        <td>Status</td>
+        <td>Payload</td>
+        <td>Created</td>
+        <td>Scheduled</td>
+    </th>
+
+    <?php
+    /** @var \oat\deploymentsTools\Entity\DefaultQueue $entry */
+    foreach ($entries as $entry) { ?>
+
+        <tr>
+            <td></td>
+            <td><?= $entry->getId(); ?></td>
+            <td><?= get_class($q->unserializeJob($entry->getData())); ?></td>
+            <td><?= $entry->getStatus(); ?></td>
+            <td><?= var_dump($q->unserializeJob($entry->getData())->getContent()); ?></td>
+            <td><?= $entry->getCreated()->format('Y-m-d H:i:s'); ?></td>
+            <td><?= $entry->getScheduled()->format('Y-m-d H:i:s'); ?></td>
+        </tr>
+    <?php } ?>
+
+</table>
+

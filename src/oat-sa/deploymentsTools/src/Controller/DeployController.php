@@ -18,72 +18,76 @@
 * Copyright (c) 2015 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
 */
 
-
-
 namespace oat\deploymentsTools\Controller;
 
+use oat\deploymentsTools\Job\UnpackJob;
+use oat\deploymentsTools\Service\DeployService;
+use SlmQueue\Queue\QueueInterface;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\JsonModel;
-use Curl\Curl;
-use PharData;
 
 class DeployController extends AbstractActionController
 {
-    
+    protected $queue;
+
+    /**
+     * DeployController constructor.
+     */
+    public function __construct(QueueInterface $queue)
+    {
+        $this->queue = $queue;
+    }
+
 
     /**
      * Runs example phing file and returns
      *
-     * @return ViewModel
+     * @return JsonModel
      */
     public function runAction()
     {
-        $dataDir = realpath('data') . '/build/';
-        $parckageUrl = $this->params()->fromPost('package_url');
-        $testParckageUrl = $this->params()->fromPost('test_package_url');
-        $id = $this->params()->fromPost('build_id');
+        $packageUrl = $this->params()->fromPost('package_url');
+        $id         = $this->params()->fromPost('build_id');
+
+        if (null === $id) {
+            return new JsonModel ([
+                'success' => false,
+                'error'   => 'no id provided'
+            ]);
+        }
+
+        /** @var DeployService $deployService */
         $deployService = $this->getServiceLocator()->get('DeployService');
-        
-        if($id == null){
-            return new JsonModel (
-                array(
-                    'success' => false,
-                    'error' => 'no id provided'
-                )
-            );
-        }
-        $filename = null;
-        if(@mkdir($dataDir . $id )){
-           $deployService->setBuildFolder($dataDir . $id);
-           $result = $deployService->downloadBuild($parckageUrl, $id);
 
+        $dataDir = realpath('data') . '/build/';
+
+        if (is_writable($dataDir) && ! is_dir($dataDir . $id) && mkdir($dataDir . $id)) {
+            $deployService->setBuildFolder($dataDir . $id);
+            $result = $deployService->downloadBuild($packageUrl, $id);
         } else {
-            return new JsonModel (
-                    array(
-                        'success' => false,
-                        'error' => 'Unable to create build folder check privilege or build already exists'
-                    )
-                );
+            return new JsonModel ([
+                'success' => false,
+                'error'   => 'Unable to create build folder check privilege or build already exists'
+            ]);
+        }
+        if ($result['success']) {
+            $destination = $dataDir . $id . '/tmp/';
+
+            $job = new UnpackJob();
+            $job->setContent([
+                'filename'    => $result['filename'],
+                'destination' => $destination,
+                'buildFolder' => $deployService->getBuildFolder(),
+            ]);
+            $this->queue->push($job);
+        } else {
+            return new JsonModel ($result);
         }
 
-        if($result['success']) {
-            $destination = $dataDir.$id.'/tmp/';
-            $result = $deployService->extractBuild($result['filename'], $destination);
-        }
-        else {
-            return  new JsonModel ($result);
-        }
-      
-        if($result['success']) {
-            $result = $deployService->runPhingTask(
-                $destination . 'build.xml', 
-                'help' ,
-                 $destination .'build.properties' 
-            );
-        }
-        
-        return new JsonModel ($result);
+        return new JsonModel ([
+            'success' => true,
+            'text'    => 'Deployment job has been scheduled'
+        ]);
     }
-    
 
 }
