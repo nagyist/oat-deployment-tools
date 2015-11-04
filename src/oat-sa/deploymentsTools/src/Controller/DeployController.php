@@ -20,8 +20,7 @@
 
 namespace oat\deploymentsTools\Controller;
 
-use Monolog\Logger;
-use oat\deploymentsTools\Job\UnpackJob;
+use oat\deploymentsTools\Job\UnPackJob;
 use oat\deploymentsTools\Service\DeployService;
 use SlmQueue\Queue\QueueInterface;
 use Zend\Mvc\Controller\AbstractActionController;
@@ -73,7 +72,7 @@ class DeployController extends AbstractActionController
         }
         if ($result['success']) {
 
-            $job = new UnpackJob();
+            $job = new UnPackJob();
             $job->setContent([
                 'filename'    => $result['filename'],
                 'destination' => $deployService->getSrcFolder(),
