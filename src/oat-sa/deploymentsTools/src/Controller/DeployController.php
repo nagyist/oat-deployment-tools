@@ -72,12 +72,11 @@ class DeployController extends AbstractActionController
             ]);
         }
         if ($result['success']) {
-            $destination = $dataDir . $id . '/tmp/';
 
             $job = new UnpackJob();
             $job->setContent([
                 'filename'    => $result['filename'],
-                'destination' => $destination,
+                'destination' => $deployService->getSrcFolder(),
                 'buildFolder' => $deployService->getBuildFolder(),
             ]);
             $this->queue->push($job);

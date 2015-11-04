@@ -33,6 +33,7 @@ class UnpackJob extends AbstractJob
         $deployService = $this->getServiceLocator()->get('DeployService');
 
         $result = $deployService->extractBuild($payload['filename'], $payload['destination']);
+        $deployService->setBuildFolder($payload['buildFolder']);
 
         if ( ! $result['success']) {
             return WorkerEvent::JOB_STATUS_FAILURE_RECOVERABLE;
@@ -50,7 +51,7 @@ class UnpackJob extends AbstractJob
 
 
         if ($result['success']) {
-            $job = new BackupJob();
+            $job = $deployService->isTaoInstalled() ? new BackupJob() : new SyncJob();
             $job->setContent([
                 'destination'  => $payload['destination'],
                 'buildfile'    => $payload['destination'] . 'build.xml',

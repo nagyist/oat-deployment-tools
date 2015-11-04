@@ -96,7 +96,14 @@ class DeployService implements ServiceLocatorAwareInterface
         ];
     }
 
-
+    /**
+     * @param $buildFile
+     * @param $task
+     * @param null $propertyFile
+     * @param array $payload
+     *
+     * @return array
+     */
     public function runPhingTask($buildFile, $task, $propertyFile = null, array $payload = [])
     {
 
@@ -140,6 +147,10 @@ class DeployService implements ServiceLocatorAwareInterface
         $this->buildFolder = $buildFolder;
     }
 
+    /**
+     * Working root of proceeded build
+     * @return string
+     */
     public function getBuildFolder()
     {
         if (null === $this->buildFolder) {
@@ -147,6 +158,15 @@ class DeployService implements ServiceLocatorAwareInterface
         }
 
         return $this->buildFolder;
+    }
+
+    /**
+     * Extracted build located here
+     * @return string
+     */
+    public function getSrcFolder()
+    {
+        return $this->getBuildFolder() . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR ;
     }
 
     /**
@@ -164,8 +184,52 @@ class DeployService implements ServiceLocatorAwareInterface
             $this->logger = $logger;
         }
 
-
         return $this->logger;
+    }
+
+
+    public function isTaoInstalled(){
+
+        $propertyFile = $this->parseProperties(file_get_contents($this->getSrcFolder().'build.properties'));
+        return is_file($propertyFile['tao.root'] . '/config/generis.conf.php');
+    }
+    /**
+     * @param string $txtProperties
+     *
+     * @return array
+     */
+    private function parseProperties($txtProperties)
+    {
+        $result             = array();
+        $lines              = explode("\n", $txtProperties);
+        $key                = '';
+        $isWaitingOtherLine = false;
+        $value              = '';
+
+        foreach ($lines as $i => $line) {
+            if (empty( $line ) || ( ! $isWaitingOtherLine && strpos($line, '#') === 0 )) {
+                continue;
+            }
+
+            if ( ! $isWaitingOtherLine) {
+                $key   = substr($line, 0, strpos($line, '='));
+                $value = substr($line, strpos($line, '=') + 1, strlen($line));
+            } else {
+                $value .= $line;
+            }
+            /* Check if ends with single '\' */
+            if (strrpos($value, "\\") === strlen($value) - strlen("\\")) {
+                $value              = substr($value, 0, strlen($value) - 1) . "\n";
+                $isWaitingOtherLine = true;
+            } else {
+                $isWaitingOtherLine = false;
+            }
+
+            $result[$key] = $value;
+            unset( $lines[$i] );
+        }
+
+        return $result;
     }
 
 }
