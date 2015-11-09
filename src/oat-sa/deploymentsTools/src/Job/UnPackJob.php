@@ -48,11 +48,11 @@ class UnPackJob extends AbstractJob
                 ['packageInfo' => $packageInfo]);
         }
 
-        $dbProperties = file_get_contents($payload['destination'] . 'db.properies');
+        $dbProperties = file_get_contents($payload['destination'] . 'db.properties');
         $config = $this->getServiceLocator()->get('config');
         $password = $config['doctrine']['connection']['orm_default']['params']['password']; 
         $dbProperties = str_replace('db.pass=', 'db.pass='. $password, $dbProperties);
-        file_put_contents($payload['destination'] . 'db.properies', $dbProperties);
+        file_put_contents($payload['destination'] . 'db.properties', $dbProperties);
 
         if ($result['success']) {
             $job = new BackupJob();
