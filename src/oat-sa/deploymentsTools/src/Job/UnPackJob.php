@@ -21,16 +21,23 @@
 namespace oat\deploymentsTools\Job;
 
 use oat\deploymentsTools\Service\DeployService;
+use SlmQueue\Queue\QueueAwareInterface;
 use SlmQueue\Worker\WorkerEvent;
+use SlmQueue\Job\AbstractJob;
+use SlmQueue\Queue\QueueAwareTrait;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
-class UnPackJob extends AbstractJob
+class UnPackJob extends AbstractJob implements ServiceLocatorAwareInterface, QueueAwareInterface
 {
+    use QueueAwareTrait;
+    use ServiceLocatorAwareTrait;
 
     public function execute()
     {
         $payload = $this->getContent();
         /** @var DeployService $deployService */
-        $deployService = $this->getServiceLocator()->get('DeployService');
+        $deployService = $this->getServiceLocator()->getServiceLocator()->get('DeployService');
 
         $result = $deployService->extractBuild($payload['filename'], $payload['destination']);
         $deployService->setBuildFolder($payload['buildFolder']);
