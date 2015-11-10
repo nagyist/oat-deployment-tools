@@ -51,6 +51,8 @@ return array(
          */
         'worker_strategies' => array(
             'deploy' => array( // per worker
+                'SlmQueueDoctrine\Strategy\IdleNapStrategy' => array('nap_duration' => 1),
+                'SlmQueueDoctrine\Strategy\ClearObjectManagerStrategy'
             ),
             'queues' => array( // per queue
                 'deploy' => array(

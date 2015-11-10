@@ -4,6 +4,7 @@ namespace oat\deploymentsTools\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use DateTime;
+use SlmQueueDoctrine\Queue\DoctrineQueue;
 
 /**
  * DeployQueue
@@ -163,6 +164,22 @@ class DeployQueue
     public function getStatus()
     {
         return $this->status;
+    }
+
+    public function getNamedStatus()
+    {
+        switch ($this->getStatus()) {
+            case DoctrineQueue::STATUS_BURIED:
+                return 'Buried';
+            case DoctrineQueue::STATUS_DELETED:
+                return 'Finished';
+            case DoctrineQueue::STATUS_PENDING:
+                return 'Pending';
+            case DoctrineQueue::STATUS_RUNNING:
+                return 'Running';
+            default:
+                return 'Unknown';
+        }
     }
 
     /**

@@ -23,7 +23,7 @@ namespace oat\deploymentsTools\Service;
 use BsbPhingService\Service\PhingService;
 use Curl\Curl;
 use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\RotatingFileHandler;
+use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use UnexpectedValueException;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
@@ -180,7 +180,7 @@ class DeployService implements ServiceLocatorAwareInterface
         if (!isset($this->loggers[$this->getBuildFolder()])) {
             /** @var  Logger $logger */
             $logger  = new Logger('Phing');
-            $handler = (new RotatingFileHandler($this->getBuildFolder() . '/log/phing.log'))
+            $handler = (new StreamHandler($this->getBuildFolder() . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'phing.log'))
                 ->setFormatter(new LineFormatter());
             $logger->pushHandler($handler);
             $this->loggers[$this->getBuildFolder()] = $logger;

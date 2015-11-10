@@ -1,27 +1,61 @@
 <table class="table table-striped">
     <th>
-        <td>Id</td>
-        <td>Job</td>
-        <td>Status</td>
-        <td>Payload</td>
-        <td>Created</td>
-        <td>Scheduled</td>
+    <td>Id</td>
+    <td>Job</td>
+    <td>Status</td>
+    <td>Payload</td>
+    <td>Created</td>
+    <td>Executed</td>
+    <td>Finished</td>
+    <td>Log</td>
+    <td>Restore</td>
     </th>
 
     <?php
     /** @var \oat\deploymentsTools\Entity\DeployQueue $entry */
-    foreach ($entries as $entry) { ?>
-
+    foreach ($entries as $entry) {
+        $jobData = $q->unserializeJob($entry->getData());
+        $jobName = substr(strrchr(get_class($jobData), "\\"), 1);
+        ?>
         <tr>
             <td></td>
             <td><?= $entry->getId(); ?></td>
-            <td><?= get_class($q->unserializeJob($entry->getData())); ?></td>
-            <td><?= $entry->getStatus(); ?></td>
-            <td><?= var_dump($q->unserializeJob($entry->getData())->getContent()); ?></td>
+            <td><?= $jobName;; ?></td>
+            <td><?= $entry->getNamedStatus(); ?></td>
+            <td>
+                <a class="btn btn-info btn-xs" role="button" data-toggle="modal" href="#payload_<?= $entry->getId() ?>"
+                   aria-expanded="false" aria-controls="collapseExample">
+                    Show
+                </a>
+
+                <div class="modal fade" id="payload_<?= $entry->getId() ?>" tabindex="-1" role="dialog"
+                     aria-labelledby="myModalLabel">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Payload</h4>
+                            </div>
+                            <div class="modal-body">
+                                <?= var_dump($jobData->getContent()); ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
             <td><?= $entry->getCreated()->format('Y-m-d H:i:s'); ?></td>
-            <td><?= $entry->getScheduled()->format('Y-m-d H:i:s'); ?></td>
+            <td><?= $entry->getExecuted() ? $entry->getExecuted()->format('Y-m-d H:i:s') : '-' ?></td>
+            <td><?= $entry->getFinished() ? $entry->getFinished()->format('Y-m-d H:i:s') : '-' ?></td>
+            <td><a class="btn-xs btn btn-info" target="_blank"
+                   href="<?= $this->url('log', ['file' => rawurlencode($jobData->getContent()['buildFolder'] . '/log/phing.log')]); ?>">Show</a>
+
+            </td>
+            <td> <?php if ('InstallJob' == $jobName) { ?>
+                    <button class="btn btn-xs btn-info">Restore</button>
+                <?php } ?>
+            </td>
         </tr>
     <?php } ?>
 
 </table>
-
