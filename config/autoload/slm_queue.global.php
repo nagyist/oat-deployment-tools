@@ -117,7 +117,7 @@ return array(
          */
         'queue_manager' => array(
             'factories' => array(
-                'deploy' => 'SlmQueueDoctrine\Factory\DoctrineQueueFactory'
+                'deploy' => 'oat\deploymentsTools\Service\Factory\DoctrineQueueFactory'
             ),
         )
     ),
