@@ -380,4 +380,18 @@ class DeployQueue
             && in_array($this->getStatus(), [DoctrineQueue::STATUS_BURIED, DoctrineQueue::STATUS_DELETED]);
     }
 
+    public function getStatusClass()
+    {
+        switch ($this->getStatus()) {
+            case DoctrineQueue::STATUS_BURIED:
+                return 'danger';
+            case DoctrineQueue::STATUS_PENDING:
+                return 'active';
+            case DoctrineQueue::STATUS_RUNNING:
+                return 'warning';
+            default:
+                return '';
+        }
+    }
+
 }

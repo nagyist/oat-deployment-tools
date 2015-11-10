@@ -2,7 +2,7 @@
     Lifetime <?= $deletedLifetime ?>m /<?= $buriedLifetime ?>m
 </p>
 
-<table class="table table-striped">
+<table class="table">
     <th>
     <td>Id</td>
     <td>Job</td>
@@ -21,7 +21,7 @@
     foreach ($this->entries as $entry) {
         $payload = $entry->getUnserializedJob()->getContent();
         ?>
-        <tr>
+        <tr class="<?=$entry->getStatusClass()?>" >
             <td></td>
             <td><?= $entry->getId(); ?></td>
             <td><?= $entry->getJobName(); ?></td>
@@ -48,15 +48,14 @@
                     </div>
                 </div>
             </td>
-            <td><?= $entry->getCreated()->format('Y-m-d H:i:s'); ?></td>
-            <td><?= $entry->getExecuted() ? $entry->getExecuted()->format('Y-m-d H:i:s') : '-' ?></td>
-            <td><?= $entry->getFinished() ? $entry->getFinished()->format('Y-m-d H:i:s') : '-' ?></td>
+            <td><?= $entry->getCreated()->format('d.m.Y H:i:s'); ?></td>
+            <td><?= $entry->getExecuted() ? $entry->getExecuted()->format('d.m.Y H:i:s') : '-' ?></td>
+            <td><?= $entry->getFinished() ? $entry->getFinished()->format('d.m.Y H:i:s') : '-' ?></td>
             <td><a class="btn-xs btn btn-info" target="_blank"
                    href="<?= $this->url('log', ['file' => rawurlencode($payload['buildFolder'] . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'phing.log')]); ?>">Show</a>
-
             </td>
             <td> <?php if ($entry->isRestorable()) { ?>
-                    <a class="btn btn-xs btn-info"
+                    <a class="btn btn-xs btn-info btn-restore" target="_blank"
                        href="<?= $this->url('restore', ['dir' => rawurlencode($payload['buildFolder'])]) ?>">Restore</a>
                 <?php } ?>
             </td>
@@ -64,3 +63,15 @@
     <?php } ?>
 
 </table>
+<script>
+    (function ($) {
+        "use strict";
+
+        $('.btn-restore').on('click', function (e) {
+            e.preventDefault();
+            $.post($(e.target).attr('href'), function () {
+                window.location.reload();
+            })
+        })
+    })(jQuery);
+</script>
