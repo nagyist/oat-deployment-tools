@@ -39,12 +39,10 @@ class UnPackJob extends AbstractJob
             return WorkerEvent::JOB_STATUS_FAILURE_RECOVERABLE;
         }
 
-        $result['success'] = $result['success'] && file_exists($payload['destination'] . 'continuousphp.package');
-        $versionFile       = file_get_contents($payload['destination'] . 'continuousphp.package');
-        $packageInfo       = json_decode($versionFile, true);
-        $result['success'] = $result['success'] && isset( $packageInfo['build_id'] ) && isset( $packageInfo['ref'] ) && isset( $packageInfo['commit'] );
+        $result = $deployService->validatePackage($payload);
+        $packageInfo = isset($result['packageInfo']) ? $result['packageInfo'] : null;
 
-        if ( ! $result['success']){
+        if (!$result['success']) {
             $this->getServiceLocator()->get('BuildLogService')->addDebug('incorrect package info provided',
                 ['packageInfo' => $packageInfo]);
         }

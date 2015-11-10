@@ -234,4 +234,24 @@ class DeployService implements ServiceLocatorAwareInterface
         return $result;
     }
 
+    /**
+     * @TODO Perform security\structure\etc validation
+     * @param array $payload
+     * @return array
+     */
+    public function validatePackage(array $payload)
+    {
+        $result = [
+            'success' => false,
+        ];
+
+        if (file_exists($payload['destination'] . 'continuousphp.package')) {
+            $versionFile = file_get_contents($payload['destination'] . 'continuousphp.package');
+            $packageInfo = json_decode($versionFile, true);
+            $result['success'] = isset($packageInfo['build_id']) && isset($packageInfo['ref']) && isset($packageInfo['commit']);
+            $result['packageInfo'] = $packageInfo;
+        }
+        return $result;
+    }
+
 }
