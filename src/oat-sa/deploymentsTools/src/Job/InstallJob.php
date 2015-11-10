@@ -37,7 +37,7 @@ class InstallJob extends AbstractJob
         $result = $deployService->runPhingTask(
             $payload['buildfile'],
             $payload['task'],
-            $payload['propertyfile'],
+            null,
             $payload['packageInfo']
         );
 

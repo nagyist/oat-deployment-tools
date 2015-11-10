@@ -35,7 +35,7 @@ class SyncJob extends AbstractJob
         $result = $deployService->runPhingTask(
             $payload['buildfile'],
             'sync_package',
-            $payload['propertyfile'],
+            null,
             $payload['packageInfo']
         );
 
@@ -45,7 +45,6 @@ class SyncJob extends AbstractJob
             $job->setContent([
                 'task'         => $isTaoInstalled ? 'platform_update' : 'platform_install',
                 'buildfile'    => $payload['destination'] . 'build.xml',
-                'propertyfile' => $payload['destination'] . 'build.properties',
                 'buildFolder'  => $payload['buildFolder'],
                 'packageInfo'  => $payload['packageInfo'],
             ]);

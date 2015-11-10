@@ -35,7 +35,7 @@ class BackupJob extends AbstractJob
         $result = $deployService->runPhingTask(
             $payload['buildfile'],
             'do_full_backup',
-            $payload['propertyfile'],
+            null,
             $payload['packageInfo']
         );
 
@@ -44,7 +44,6 @@ class BackupJob extends AbstractJob
             $job->setContent([
                 'destination'  => $payload['destination'],
                 'buildfile'    => $payload['destination'] . 'build.xml',
-                'propertyfile' => $payload['destination'] . 'build.properties',
                 'buildFolder'  => $payload['buildFolder'],
                 'packageInfo'  => $payload['packageInfo'],
 
