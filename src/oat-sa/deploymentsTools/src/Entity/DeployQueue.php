@@ -86,6 +86,11 @@ class DeployQueue
      */
     private $trace;
 
+    /**
+     * For internal usage only
+     * @var \SlmQueueDoctrine\Queue\DoctrineQueue
+     */
+    private $queueManager;
 
     /**
      * Get id
@@ -335,4 +340,44 @@ class DeployQueue
     {
         return $this->trace;
     }
+
+    public function setQueueManager(DoctrineQueue $queueManager)
+    {
+        $this->queueManager = $queueManager;
+    }
+
+    public function getQueueManager()
+    {
+        return $this->queueManager;
+    }
+
+    /**
+     * @return \SlmQueue\Job\JobInterface
+     */
+    public function getUnserializedJob()
+    {
+        return $this->getQueueManager()->unserializeJob($this->getData());
+    }
+
+    /**
+     * Short name of JobClass
+     * @return string
+     */
+    public function getJobName()
+    {
+        return substr(strrchr(get_class($this->getUnserializedJob()), "\\"), 1);
+    }
+
+    /**
+     * Whether job is potentially restorable
+     * @return bool
+     */
+    public function isRestorable()
+    {
+        return
+            'InstallJob' === $this->getJobName()
+            && 'platform_install' !== $this->getUnserializedJob()->getContent()['task']
+            && in_array($this->getStatus(), [DoctrineQueue::STATUS_BURIED, DoctrineQueue::STATUS_DELETED]);
+    }
+
 }

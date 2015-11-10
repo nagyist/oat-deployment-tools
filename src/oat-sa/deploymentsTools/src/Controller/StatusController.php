@@ -34,13 +34,21 @@ class StatusController extends AbstractActionController
         /** @var \Doctrine\ORM\EntityManager $em */
         $em = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
 
-        $entries = $em->getRepository('oat\deploymentsTools\Entity\DeployQueue')->findAll();
+        $entries = $em->getRepository('oat\deploymentsTools\Entity\DeployQueue')->findBy([], ['created' => 'desc']);
 
         /** @var \SlmQueueDoctrine\Queue\DoctrineQueue $q */
         $q = $this->getServiceLocator()->get('SlmQueue\Queue\QueuePluginManager')->get('deploy');
 
+        array_map(function ($e) use ($q) {
+            $e->setQueueManager($q);
+        }, $entries);
 
-        return new ViewModel(['entries' => $entries, 'q' => $q]);
+        /** @var array $config */
+        $config = $this->getServiceLocator()->get('Config');
+        $deletedLifetime  = $config['slm_queue']['queues']['deploy']['deleted_lifetime'];
+        $buriedLifetime   = $config['slm_queue']['queues']['deploy']['buried_lifetime'];
+
+        return new ViewModel(['entries' => $entries, 'deletedLifetime' => $deletedLifetime, 'buriedLifetime' => $buriedLifetime]);
     }
 
     public function showLogsAction()

@@ -79,13 +79,13 @@ class DoctrineQueue extends BaseDoctrineQueue implements DoctrineQueueInterface,
 
         foreach ($q->getResult() as $entry) {
             /** @var \oat\deploymentsTools\Entity\DeployQueue $entry */
-            $jobData = $this->unserializeJob($entry->getData());
-            $jobName = substr(strrchr(get_class($jobData), "\\"), 1);
+            $entry->setQueueManager($this);
 
             //@TODO move to config
-            if ('InstallJob' === $jobName) {
-                $buildFolder = isset($jobData->getContent()['buildFolder']) ? $jobData->getContent()['buildFolder'] : null;
-                if ($buildFolder) {
+            if ('InstallJob' === $entry->getJobName()) {
+                $payload = $entry->getUnserializedJob()->getContent();;
+                $buildFolder = isset($payload['buildFolder']) ? $payload['buildFolder'] : null;
+                if ($buildFolder && realpath($buildFolder)) {
                     $fs->remove($buildFolder);
                 }
             }

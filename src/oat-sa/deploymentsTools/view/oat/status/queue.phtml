@@ -1,3 +1,7 @@
+<p class="badge ">
+    Lifetime <?= $deletedLifetime ?>m /<?= $buriedLifetime ?>m
+</p>
+
 <table class="table table-striped">
     <th>
     <td>Id</td>
@@ -13,14 +17,14 @@
 
     <?php
     /** @var \oat\deploymentsTools\Entity\DeployQueue $entry */
-    foreach ($entries as $entry) {
-        $jobData = $q->unserializeJob($entry->getData());
-        $jobName = substr(strrchr(get_class($jobData), "\\"), 1);
+
+    foreach ($this->entries as $entry) {
+        $payload = $entry->getUnserializedJob()->getContent();
         ?>
         <tr>
             <td></td>
             <td><?= $entry->getId(); ?></td>
-            <td><?= $jobName;; ?></td>
+            <td><?= $entry->getJobName(); ?></td>
             <td><?= $entry->getNamedStatus(); ?></td>
             <td>
                 <a class="btn btn-info btn-xs" role="button" data-toggle="modal" href="#payload_<?= $entry->getId() ?>"
@@ -38,7 +42,7 @@
                                 <h4 class="modal-title" id="myModalLabel">Payload</h4>
                             </div>
                             <div class="modal-body">
-                                <?= var_dump($jobData->getContent()); ?>
+                                <?= var_dump($payload); ?>
                             </div>
                         </div>
                     </div>
@@ -48,11 +52,12 @@
             <td><?= $entry->getExecuted() ? $entry->getExecuted()->format('Y-m-d H:i:s') : '-' ?></td>
             <td><?= $entry->getFinished() ? $entry->getFinished()->format('Y-m-d H:i:s') : '-' ?></td>
             <td><a class="btn-xs btn btn-info" target="_blank"
-                   href="<?= $this->url('log', ['file' => rawurlencode($jobData->getContent()['buildFolder'] . '/log/phing.log')]); ?>">Show</a>
+                   href="<?= $this->url('log', ['file' => rawurlencode($payload['buildFolder'] . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'phing.log')]); ?>">Show</a>
 
             </td>
-            <td> <?php if ('InstallJob' == $jobName) { ?>
-                    <button class="btn btn-xs btn-info">Restore</button>
+            <td> <?php if ($entry->isRestorable()) { ?>
+                    <a class="btn btn-xs btn-info"
+                       href="<?= $this->url('restore', ['dir' => rawurlencode($payload['buildFolder'])]) ?>">Restore</a>
                 <?php } ?>
             </td>
         </tr>

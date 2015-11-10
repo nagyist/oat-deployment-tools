@@ -62,6 +62,17 @@ return array(
                      ],
                 ],
             ],
+
+             'restore' => [
+                'type'    => 'segment',
+                'options' => [
+                     'route'    => '/restore[/:dir]',
+                     'defaults' => [
+                         'controller' => 'DeployController',
+                         'action'     => 'restore',
+                     ],
+                ],
+            ],
          ],
 
 
