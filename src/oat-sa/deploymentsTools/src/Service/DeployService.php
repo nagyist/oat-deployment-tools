@@ -33,8 +33,8 @@ class DeployService implements ServiceLocatorAwareInterface
 {
     use ServiceLocatorAwareTrait;
 
-    /** @var  Logger */
-    protected $logger;
+    /** @var  []Logger */
+    protected $loggers = [] ;
     private $buildFolder;
 
     public function __construct($serviceLocator)
@@ -119,23 +119,25 @@ class DeployService implements ServiceLocatorAwareInterface
         $BsbPhingService = $this->getServiceLocator()->get('BsbPhingService');
         $logger          = $this->getPackageLogger();
 
+        $logger->addInfo(sprintf('Task %s has been started', $task));
         $this->getServiceLocator()->get('BuildLogService')->addInfo(sprintf('Task %s has been started', $task),
             ['package' => $payload]);
 
-        $buildResult = $BsbPhingService->build($task, $buildParams, false);
-        $buildResult->run(function ($type, $buffer) use ($logger) {
+        $buildProcess = $BsbPhingService->build($task, $buildParams, false);
+        $buildProcess->setTimeout(60*5);
+        $buildProcess->run(function ($type, $buffer) use ($logger) {
             $logger->addDebug($buffer);
         });
 
-        if (isset( $buildResult ) && $buildResult->isSuccessful()) {
+        if (isset( $buildProcess ) && $buildProcess->isSuccessful()) {
 
             return [
                 'success'       => true,
-                'phingExitCode' => $buildResult->getExitCodeText()
+                'phingExitCode' => $buildProcess->getExitCodeText()
             ];
         } else {
             $this->getServiceLocator()->get('BuildLogService')->addInfo(sprintf('Task %s failed with %s %s', $task,
-                $buildResult->getExitCode(), $buildResult->getExitCodeText()));
+                $buildProcess->getExitCode(), $buildProcess->getExitCodeText()));
             return [
                 'success' => false,
             ];
@@ -173,18 +175,18 @@ class DeployService implements ServiceLocatorAwareInterface
      * Set up extra channel per package
      * @return Logger
      */
-    protected function getPackageLogger()
+    public function getPackageLogger()
     {
-        if ( ! $this->logger) {
+        if (!isset($this->loggers[$this->getBuildFolder()])) {
             /** @var  Logger $logger */
             $logger  = new Logger('Phing');
             $handler = (new RotatingFileHandler($this->getBuildFolder() . '/log/phing.log'))
                 ->setFormatter(new LineFormatter());
             $logger->pushHandler($handler);
-            $this->logger = $logger;
+            $this->loggers[$this->getBuildFolder()] = $logger;
         }
 
-        return $this->logger;
+        return $this->loggers[$this->getBuildFolder()];
     }
 
 
