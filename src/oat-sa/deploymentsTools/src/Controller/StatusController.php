@@ -53,7 +53,7 @@ class StatusController extends AbstractActionController
 
     public function showLogsAction()
     {
-        $basePath = realpath(getcwd() . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'build');
+        $basePath = realpath(getcwd() . DIRECTORY_SEPARATOR );
 
         $finder = new Finder();
         /** @var SplFileInfo $file */
@@ -67,7 +67,7 @@ class StatusController extends AbstractActionController
     public function logAction()
     {
         $targetFile = realpath(rawurldecode($this->params('file')));
-        $basePath   = realpath(getcwd() . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'build');
+        $basePath   = realpath(getcwd() . DIRECTORY_SEPARATOR );
 
         if (0 !== strpos($targetFile, $basePath) || 'log' !== pathinfo($targetFile, PATHINFO_EXTENSION)) {
             $this->getResponse()->setStatusCode(404);

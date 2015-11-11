@@ -1,20 +1,23 @@
-<p class="badge ">
-    Lifetime <?= $deletedLifetime ?>m /<?= $buriedLifetime ?>m
+<p>
+    <a class="btn btn-link btn-xs" href="<?= $this->url('logs'); ?>">Global logs</a>
+    <span class="badge ">
+        Lifetime <?= $this->deletedLifetime ?>min /<?= $this->buriedLifetime ?>min
+    </span>
 </p>
 
 <table class="table">
-    <th>
-    <td>Id</td>
-    <td>Job</td>
-    <td>Build</td>
-    <td>Status</td>
-    <td>Payload</td>
-    <td>Created</td>
-    <td>Executed</td>
-    <td>Finished</td>
-    <td>Log</td>
-    <td>Restore</td>
-    </th>
+    <tr>
+    <th>Id</th>
+    <th>Job</th>
+    <th>Build</th>
+    <th>Status</th>
+    <th>Payload</th>
+    <th>Created</th>
+    <th>Executed</th>
+    <th>Finished</th>
+    <th>Log</th>
+    <th>Restore</th>
+    </tr>
 
     <?php
     /** @var \oat\deploymentsTools\Entity\DeployQueue $entry */
@@ -23,13 +26,12 @@
         $payload = $entry->getUnserializedJob()->getContent();
         ?>
         <tr class="<?=$entry->getStatusClass()?>" >
-            <td></td>
             <td><?= $entry->getId(); ?></td>
             <td><?= $entry->getJobName(); ?></td>
             <td><?= isset($payload['buildId'])?$payload['buildId']:''; ?></td>
             <td><?= $entry->getNamedStatus(); ?></td>
             <td>
-                <a class="btn btn-info btn-xs" role="button" data-toggle="modal" href="#payload_<?= $entry->getId() ?>"
+                <a class="btn btn-default btn-xs" role="button" data-toggle="modal" href="#payload_<?= $entry->getId() ?>"
                    aria-expanded="false" aria-controls="collapseExample">
                     Show
                 </a>
@@ -53,11 +55,11 @@
             <td><?= $entry->getCreated()->format('d.m.Y H:i:s'); ?></td>
             <td><?= $entry->getExecuted() ? $entry->getExecuted()->format('d.m.Y H:i:s') : '-' ?></td>
             <td><?= $entry->getFinished() ? $entry->getFinished()->format('d.m.Y H:i:s') : '-' ?></td>
-            <td><a class="btn-xs btn btn-info" target="_blank"
+            <td><a class="btn-xs btn btn-default" target="_blank"
                    href="<?= $this->url('log', ['file' => isset($payload['buildFolder'])?rawurlencode($payload['buildFolder'] . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'phing.log'):'']); ?>">Show</a>
             </td>
             <td> <?php if ($entry->isRestorable()) { ?>
-                    <a class="btn btn-xs btn-info btn-restore" target="_blank"
+                    <a class="btn btn-xs btn-default btn-restore" target="_blank"
                        href="<?= $this->url('restore', ['dir' => rawurlencode($payload['buildFolder'])]) ?>">Restore</a>
                 <?php } ?>
             </td>

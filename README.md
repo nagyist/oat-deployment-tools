@@ -3,6 +3,7 @@
 ##Installation
 * Do `composer install` to get all dependencies
 * Add config for queue connection ( see `config/autoload/local.php.dist` for sample )
+* Add config for db related phing tasks ( see `config/autoload/db.local.properties.dist` for sample )
 * Apply DB schema `vendor/bin/doctrine-module orm:schema-tool:update --force`
 
 ##Usage
@@ -12,3 +13,6 @@
 * Directory `data\build` in application root must be writable
 * Build log for each package is located in `data\build\<build>\log` 
 * General log in `data\log` 
+
+##Important
+* Worker manager must be restarted after each tool update 

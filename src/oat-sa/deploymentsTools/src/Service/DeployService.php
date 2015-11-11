@@ -121,7 +121,7 @@ class DeployService implements ServiceLocatorAwareInterface
 
         $logger->addInfo(sprintf('Task %s has been started', $task));
         $this->getServiceLocator()->get('BuildLogService')->addInfo(sprintf('Task %s has been started', $task),
-            ['package' => $payload]);
+            ['package' => $payload, 'buildFolder'=>$this->getBuildFolder()]);
 
         $buildProcess = $BsbPhingService->build($task, $buildParams, false);
         $buildProcess->setTimeout(60*5);
