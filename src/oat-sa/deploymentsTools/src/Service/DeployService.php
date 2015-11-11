@@ -144,6 +144,9 @@ class DeployService implements ServiceLocatorAwareInterface
         }
     }
 
+    /**
+     * @param string $buildFolder
+     */
     public function setBuildFolder($buildFolder)
     {
         $this->buildFolder = $buildFolder;
@@ -190,10 +193,20 @@ class DeployService implements ServiceLocatorAwareInterface
     }
 
 
+    /**
+     * @return bool
+     */
     public function isTaoInstalled(){
-
         $propertyFile = $this->parseProperties(file_get_contents($this->getSrcFolder().'build.properties'));
         return is_file($propertyFile['tao.root'] . '/config/generis.conf.php');
+    }
+
+    /**
+     * @return string
+     */
+    public function getTaoUri(){
+        $propertyFile = $this->parseProperties(file_get_contents($this->getSrcFolder().'build.properties'));
+        return $propertyFile['module.url'];
     }
     /**
      * @param string $txtProperties

@@ -38,7 +38,8 @@ class InstallJob extends AbstractJob implements ServiceLocatorAwareInterface, Qu
     {
         $payload = $this->getContent();
         /** @var DeployService $deployService */
-        $deployService = $this->getServiceLocator()->getServiceLocator()->get('DeployService');
+        $sl = $this->getServiceLocator()->getServiceLocator();
+        $deployService = $sl->get('DeployService');
         $deployService->setBuildFolder($payload['buildFolder']);
 
 
@@ -49,8 +50,15 @@ class InstallJob extends AbstractJob implements ServiceLocatorAwareInterface, Qu
             $payload['packageInfo']
         );
 
-        if ( ! $result['success']) {
+        $notificator = $sl->has('Slack') ? $sl->get('Slack') : $sl->get('BuildLogService');
+        $ref   = $deployService->getPackageInfo($deployService->getSrcFolder())['ref'];
+
+        if (!$result['success']) {
+            $notificator->addError(sprintf('Delivery of %s failed to  %s', $ref, $deployService->getTaoUri()));
+
             return WorkerEvent::JOB_STATUS_FAILURE_RECOVERABLE;
+        } else {
+            $notificator->addInfo(sprintf('%s successfully delivered to  %s', $ref, $deployService->getTaoUri()));
         }
 
     }
