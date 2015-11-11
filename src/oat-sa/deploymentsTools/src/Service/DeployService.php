@@ -245,13 +245,26 @@ class DeployService implements ServiceLocatorAwareInterface
             'success' => false,
         ];
 
-        if (file_exists($payload['destination'] . 'continuousphp.package')) {
-            $versionFile = file_get_contents($payload['destination'] . 'continuousphp.package');
-            $packageInfo = json_decode($versionFile, true);
+        if (isset($payload['destination'])) {
+            $packageInfo = $this->getPackageInfo($payload['destination']);
             $result['success'] = isset($packageInfo['build_id']) && isset($packageInfo['ref']) && isset($packageInfo['commit']);
             $result['packageInfo'] = $packageInfo;
         }
         return $result;
+    }
+
+    /**
+     * @param string $destination
+     * @return array
+     */
+    public function getPackageInfo($destination)
+    {
+        $packageInfo = [];
+        if (file_exists($destination.'continuousphp.package')) {
+            $versionFile = file_get_contents($destination.'continuousphp.package');
+            $packageInfo = json_decode($versionFile, true);
+        }
+        return $packageInfo;
     }
 
 }

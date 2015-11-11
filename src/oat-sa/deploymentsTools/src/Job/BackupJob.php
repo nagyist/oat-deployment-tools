@@ -54,7 +54,7 @@ class BackupJob extends AbstractJob implements ServiceLocatorAwareInterface, Que
                 'buildfile'    => $payload['destination'] . 'build.xml',
                 'buildFolder'  => $payload['buildFolder'],
                 'packageInfo'  => $payload['packageInfo'],
-
+                'buildId'      => $payload['buildId'],
             ]);
             $this->getQueue()->push($job);
         }

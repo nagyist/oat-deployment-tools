@@ -6,6 +6,7 @@
     <th>
     <td>Id</td>
     <td>Job</td>
+    <td>Build</td>
     <td>Status</td>
     <td>Payload</td>
     <td>Created</td>
@@ -25,6 +26,7 @@
             <td></td>
             <td><?= $entry->getId(); ?></td>
             <td><?= $entry->getJobName(); ?></td>
+            <td><?= isset($payload['buildId'])?$payload['buildId']:''; ?></td>
             <td><?= $entry->getNamedStatus(); ?></td>
             <td>
                 <a class="btn btn-info btn-xs" role="button" data-toggle="modal" href="#payload_<?= $entry->getId() ?>"
@@ -52,7 +54,7 @@
             <td><?= $entry->getExecuted() ? $entry->getExecuted()->format('d.m.Y H:i:s') : '-' ?></td>
             <td><?= $entry->getFinished() ? $entry->getFinished()->format('d.m.Y H:i:s') : '-' ?></td>
             <td><a class="btn-xs btn btn-info" target="_blank"
-                   href="<?= $this->url('log', ['file' => rawurlencode($payload['buildFolder'] . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'phing.log')]); ?>">Show</a>
+                   href="<?= $this->url('log', ['file' => isset($payload['buildFolder'])?rawurlencode($payload['buildFolder'] . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'phing.log'):'']); ?>">Show</a>
             </td>
             <td> <?php if ($entry->isRestorable()) { ?>
                     <a class="btn btn-xs btn-info btn-restore" target="_blank"

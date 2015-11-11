@@ -55,6 +55,7 @@ class SyncJob extends AbstractJob implements ServiceLocatorAwareInterface, Queue
                 'buildfile'    => $payload['destination'] . 'build.xml',
                 'buildFolder'  => $payload['buildFolder'],
                 'packageInfo'  => $payload['packageInfo'],
+                'buildId'      => $payload['buildId'],
             ]);
             $this->getQueue()->push($job);
         }

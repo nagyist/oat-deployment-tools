@@ -53,7 +53,8 @@ class DeployController extends AbstractActionController implements QueueAwareInt
         $job = new RestoreJob();
         $job->setContent([
             'buildFolder' => $this->getDeployService()->getSrcFolder(),
-            'buildfile' => $this->getDeployService()->getSrcFolder() . 'build.xml',
+            'buildfile'   => $this->getDeployService()->getSrcFolder() . 'build.xml',
+            'buildId'     => $this->getDeployService()->getPackageInfo($this->getDeployService()->getSrcFolder())['build_id'],
         ]);
         $this->queue->push($job);
 
@@ -97,6 +98,7 @@ class DeployController extends AbstractActionController implements QueueAwareInt
                 'filename' => $result['filename'],
                 'destination' => $deployService->getSrcFolder(),
                 'buildFolder' => $deployService->getBuildFolder(),
+                'buildId'     => $id,
             ]);
             $this->queue->push($job);
         } else {
