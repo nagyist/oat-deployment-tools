@@ -21,21 +21,29 @@
 namespace oat\deploymentsTools\Job;
 
 use oat\deploymentsTools\Service\DeployService;
+use SlmQueue\Job\AbstractJob;
+use SlmQueue\Queue\QueueAwareInterface;
+use SlmQueue\Queue\QueueAwareTrait;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
-class BackupJob extends AbstractJob
+class BackupJob extends AbstractJob implements ServiceLocatorAwareInterface, QueueAwareInterface
 {
+
+    use QueueAwareTrait;
+    use ServiceLocatorAwareTrait;
 
     public function execute()
     {
         $payload = $this->getContent();
         /** @var DeployService $deployService */
-        $deployService = $this->getServiceLocator()->get('DeployService');
+        $deployService = $this->getServiceLocator()->getServiceLocator()->get('DeployService');
         $deployService->setBuildFolder($payload['buildFolder']);
 
         $result = $deployService->runPhingTask(
             $payload['buildfile'],
             'do_full_backup',
-            $payload['propertyfile'],
+            null,
             $payload['packageInfo']
         );
 
@@ -44,10 +52,9 @@ class BackupJob extends AbstractJob
             $job->setContent([
                 'destination'  => $payload['destination'],
                 'buildfile'    => $payload['destination'] . 'build.xml',
-                'propertyfile' => $payload['destination'] . 'build.properties',
                 'buildFolder'  => $payload['buildFolder'],
                 'packageInfo'  => $payload['packageInfo'],
-
+                'buildId'      => $payload['buildId'],
             ]);
             $this->getQueue()->push($job);
         }

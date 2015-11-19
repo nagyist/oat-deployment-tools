@@ -4,14 +4,15 @@ namespace oat\deploymentsTools\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use DateTime;
+use SlmQueueDoctrine\Queue\DoctrineQueue;
 
 /**
- * DefaultQueue
+ * DeployQueue
  *
- * @ORM\Table(name="queue_default", indexes={@ORM\Index(name="queue_default_idx", columns={"id", "status"})})
+ * @ORM\Table(name="deploy_queue", indexes={@ORM\Index(name="queue_default_idx", columns={"id", "status"})})
  * @ORM\Entity()
  */
-class DefaultQueue
+class DeployQueue
 {
     /**
      * @var integer
@@ -85,6 +86,11 @@ class DefaultQueue
      */
     private $trace;
 
+    /**
+     * For internal usage only
+     * @var \SlmQueueDoctrine\Queue\DoctrineQueue
+     */
+    private $queueManager;
 
     /**
      * Get id
@@ -100,7 +106,7 @@ class DefaultQueue
      * Set queue
      *
      * @param string $queue
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setQueue($queue)
     {
@@ -123,7 +129,7 @@ class DefaultQueue
      * Set data
      *
      * @param string $data
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setData($data)
     {
@@ -146,7 +152,7 @@ class DefaultQueue
      * Set status
      *
      * @param int $status
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setStatus($status)
     {
@@ -165,11 +171,27 @@ class DefaultQueue
         return $this->status;
     }
 
+    public function getNamedStatus()
+    {
+        switch ($this->getStatus()) {
+            case DoctrineQueue::STATUS_BURIED:
+                return 'Buried';
+            case DoctrineQueue::STATUS_DELETED:
+                return 'Finished';
+            case DoctrineQueue::STATUS_PENDING:
+                return 'Pending';
+            case DoctrineQueue::STATUS_RUNNING:
+                return 'Running';
+            default:
+                return 'Unknown';
+        }
+    }
+
     /**
      * Set created
      *
      * @param \DateTime $created
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setCreated(DateTime $created)
     {
@@ -196,7 +218,7 @@ class DefaultQueue
      * Set scheduled
      *
      * @param \DateTime $scheduled
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setScheduled(DateTime $scheduled)
     {
@@ -223,7 +245,7 @@ class DefaultQueue
      * Set executed
      *
      * @param \DateTime $executed
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setExecuted(DateTime $executed = null)
     {
@@ -250,7 +272,7 @@ class DefaultQueue
      * Set finished
      *
      * @param \DateTime $finished
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setFinished(DateTime $finished = null)
     {
@@ -277,7 +299,7 @@ class DefaultQueue
      * Set message
      *
      * @param string $message
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setMessage($message)
     {
@@ -300,7 +322,7 @@ class DefaultQueue
      * Set trace
      *
      * @param string $trace
-     * @return DefaultQueue
+     * @return DeployQueue
      */
     public function setTrace($trace)
     {
@@ -318,4 +340,58 @@ class DefaultQueue
     {
         return $this->trace;
     }
+
+    public function setQueueManager(DoctrineQueue $queueManager)
+    {
+        $this->queueManager = $queueManager;
+    }
+
+    public function getQueueManager()
+    {
+        return $this->queueManager;
+    }
+
+    /**
+     * @return \SlmQueue\Job\JobInterface
+     */
+    public function getUnserializedJob()
+    {
+        return $this->getQueueManager()->unserializeJob($this->getData());
+    }
+
+    /**
+     * Short name of JobClass
+     * @return string
+     */
+    public function getJobName()
+    {
+        return substr(strrchr(get_class($this->getUnserializedJob()), "\\"), 1);
+    }
+
+    /**
+     * Whether job is potentially restorable
+     * @return bool
+     */
+    public function isRestorable()
+    {
+        return
+            'InstallJob' === $this->getJobName()
+            && 'platform_install' !== $this->getUnserializedJob()->getContent()['task']
+            && in_array($this->getStatus(), [DoctrineQueue::STATUS_BURIED, DoctrineQueue::STATUS_DELETED]);
+    }
+
+    public function getStatusClass()
+    {
+        switch ($this->getStatus()) {
+            case DoctrineQueue::STATUS_BURIED:
+                return 'danger';
+            case DoctrineQueue::STATUS_PENDING:
+                return 'active';
+            case DoctrineQueue::STATUS_RUNNING:
+                return 'warning';
+            default:
+                return '';
+        }
+    }
+
 }

@@ -13,8 +13,10 @@ return array(
          * Available options depends on the queue factory
          */
         'queues' => array(
-            'deploy' =>[
-
+            'deploy' => [
+                'table_name'       => 'deploy_queue',
+                'deleted_lifetime' => 60 * 24 * 5,    //minutes
+                'buried_lifetime'  => 60 * 24 * 5,
             ],
         ),
 
@@ -48,10 +50,13 @@ return array(
          * ),
          */
         'worker_strategies' => array(
-            'default' => array( // per worker
+            'deploy' => array( // per worker
+                'SlmQueueDoctrine\Strategy\IdleNapStrategy' => array('nap_duration' => 1),
+                'SlmQueueDoctrine\Strategy\ClearObjectManagerStrategy'
             ),
             'queues' => array( // per queue
-                'default' => array(
+                'deploy' => array(
+                    'SlmQueue\Strategy\ProcessQueueStrategy',
                 ),
             ),
         ),
@@ -90,7 +95,7 @@ return array(
         'job_manager' => array(
             'invokables' => array(
                 'InstallJob'  => 'oat\oat\deploymentsTools\Job\InstallJob',
-                'UnPackJob' => 'oat\oat\deploymentsTools\Job\UnpackJob',
+                'UnPackJob' => 'oat\oat\deploymentsTools\Job\UnPackJob',
                 'SyncJob'   => 'oat\oat\deploymentsTools\Job\SyncJob',
                 'BackupJob' => 'oat\oat\deploymentsTools\Job\BackupJob',
             ),
@@ -112,7 +117,7 @@ return array(
          */
         'queue_manager' => array(
             'factories' => array(
-                'default' => 'SlmQueueDoctrine\Factory\DoctrineQueueFactory'
+                'deploy' => 'oat\deploymentsTools\Service\Factory\DoctrineQueueFactory'
             ),
         )
     ),

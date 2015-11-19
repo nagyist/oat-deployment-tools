@@ -3,6 +3,7 @@ namespace oat\deploymentsTools;
 
 use Monolog\Logger;
 use oat\deploymentsTools\Controller\DeployController;
+use SlmQueue\Queue\QueueAwareInterface;
 use SlmQueue\Worker\WorkerEvent;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\Mvc\Controller\ControllerManager;
@@ -21,12 +22,15 @@ class Module implements ConfigProviderInterface
         return [
             'factories' => [
                 'DeployController' => function (ControllerManager $cm) {
-                    $parentLocator = $cm->getServiceLocator();
-                    $queueManager  = $parentLocator->get('SlmQueue\Queue\QueuePluginManager');
 
-                    $queue = $queueManager->get('default');
+                    $controller = new DeployController();
 
-                    $controller = new DeployController($queue);
+                    if ($controller instanceof QueueAwareInterface) {
+                        $parentLocator = $cm->getServiceLocator();
+                        $queueManager = $parentLocator->get('SlmQueue\Queue\QueuePluginManager');
+
+                        $controller->setQueue($queueManager->get('deploy'));
+                    }
 
                     return $controller;
                 },

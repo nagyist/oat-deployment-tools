@@ -23,7 +23,7 @@ namespace oat\deploymentsTools\Service;
 use BsbPhingService\Service\PhingService;
 use Curl\Curl;
 use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\RotatingFileHandler;
+use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use UnexpectedValueException;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
@@ -33,8 +33,8 @@ class DeployService implements ServiceLocatorAwareInterface
 {
     use ServiceLocatorAwareTrait;
 
-    /** @var  Logger */
-    protected $logger;
+    /** @var  []Logger */
+    protected $loggers = [] ;
     private $buildFolder;
 
     public function __construct($serviceLocator)
@@ -96,7 +96,14 @@ class DeployService implements ServiceLocatorAwareInterface
         ];
     }
 
-
+    /**
+     * @param $buildFile
+     * @param $task
+     * @param null $propertyFile
+     * @param array $payload
+     *
+     * @return array
+     */
     public function runPhingTask($buildFile, $task, $propertyFile = null, array $payload = [])
     {
 
@@ -112,32 +119,43 @@ class DeployService implements ServiceLocatorAwareInterface
         $BsbPhingService = $this->getServiceLocator()->get('BsbPhingService');
         $logger          = $this->getPackageLogger();
 
+        $logger->addInfo(sprintf('Task %s has been started', $task));
         $this->getServiceLocator()->get('BuildLogService')->addInfo(sprintf('Task %s has been started', $task),
-            ['package' => $payload]);
+            ['package' => $payload, 'buildFolder'=>$this->getBuildFolder()]);
 
-        $buildResult = $BsbPhingService->build($task, $buildParams, false);
-        $buildResult->run(function ($type, $buffer) use ($logger) {
+        $buildProcess = $BsbPhingService->build($task, $buildParams, false);
+        $buildProcess->setTimeout(60*5);
+        $buildProcess->run(function ($type, $buffer) use ($logger) {
             $logger->addDebug($buffer);
         });
 
-        if (isset( $buildResult )) {
+        if (isset( $buildProcess ) && $buildProcess->isSuccessful()) {
 
             return [
                 'success'       => true,
-                'phingExitCode' => $buildResult->getExitCodeText()
+                'phingExitCode' => $buildProcess->getExitCodeText()
             ];
         } else {
+            $this->getServiceLocator()->get('BuildLogService')->addInfo(sprintf('Task %s failed with %s %s', $task,
+                $buildProcess->getExitCode(), $buildProcess->getExitCodeText()));
             return [
                 'success' => false,
             ];
         }
     }
 
+    /**
+     * @param string $buildFolder
+     */
     public function setBuildFolder($buildFolder)
     {
         $this->buildFolder = $buildFolder;
     }
 
+    /**
+     * Working root of proceeded build
+     * @return string
+     */
     public function getBuildFolder()
     {
         if (null === $this->buildFolder) {
@@ -148,22 +166,118 @@ class DeployService implements ServiceLocatorAwareInterface
     }
 
     /**
+     * Extracted build located here
+     * @return string
+     */
+    public function getSrcFolder()
+    {
+        return $this->getBuildFolder() . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR ;
+    }
+
+    /**
      * Set up extra channel per package
      * @return Logger
      */
-    protected function getPackageLogger()
+    public function getPackageLogger()
     {
-        if ( ! $this->logger) {
+        if (!isset($this->loggers[$this->getBuildFolder()])) {
             /** @var  Logger $logger */
             $logger  = new Logger('Phing');
-            $handler = (new RotatingFileHandler($this->getBuildFolder() . '/log/phing.log'))
+            $handler = (new StreamHandler($this->getBuildFolder() . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'phing.log'))
                 ->setFormatter(new LineFormatter());
             $logger->pushHandler($handler);
-            $this->logger = $logger;
+            $this->loggers[$this->getBuildFolder()] = $logger;
         }
 
+        return $this->loggers[$this->getBuildFolder()];
+    }
 
-        return $this->logger;
+
+    /**
+     * @return bool
+     */
+    public function isTaoInstalled(){
+        $propertyFile = $this->parseProperties(file_get_contents($this->getSrcFolder().'build.properties'));
+        return is_file($propertyFile['tao.root'] . '/config/generis.conf.php');
+    }
+
+    /**
+     * @return string
+     */
+    public function getTaoUri(){
+        $propertyFile = $this->parseProperties(file_get_contents($this->getSrcFolder().'build.properties'));
+        return $propertyFile['module.url'];
+    }
+    /**
+     * @param string $txtProperties
+     *
+     * @return array
+     */
+    private function parseProperties($txtProperties)
+    {
+        $result             = array();
+        $lines              = explode("\n", $txtProperties);
+        $key                = '';
+        $isWaitingOtherLine = false;
+        $value              = '';
+
+        foreach ($lines as $i => $line) {
+            if (empty( $line ) || ( ! $isWaitingOtherLine && strpos($line, '#') === 0 )) {
+                continue;
+            }
+
+            if ( ! $isWaitingOtherLine) {
+                $key   = substr($line, 0, strpos($line, '='));
+                $value = substr($line, strpos($line, '=') + 1, strlen($line));
+            } else {
+                $value .= $line;
+            }
+            /* Check if ends with single '\' */
+            if (strrpos($value, "\\") === strlen($value) - strlen("\\")) {
+                $value              = substr($value, 0, strlen($value) - 1) . "\n";
+                $isWaitingOtherLine = true;
+            } else {
+                $isWaitingOtherLine = false;
+            }
+
+            $result[$key] = $value;
+            unset( $lines[$i] );
+        }
+
+        return $result;
+    }
+
+    /**
+     * @TODO Perform security\structure\etc validation
+     * @param array $payload
+     * @return array
+     */
+    public function validatePackage(array $payload)
+    {
+        $result = [
+            'success' => false,
+        ];
+
+        if (isset($payload['destination'])) {
+            $packageInfo = $this->getPackageInfo($payload['destination']);
+            $result['success'] = isset($packageInfo['build_id']) && isset($packageInfo['ref']) && isset($packageInfo['commit']);
+            $result['packageInfo'] = $packageInfo;
+        }
+        return $result;
+    }
+
+    /**
+     * @param string $destination
+     * @return array
+     */
+    public function getPackageInfo($destination)
+    {
+        $packageInfo = [];
+        if (file_exists($destination.'continuousphp.package')) {
+            $versionFile = file_get_contents($destination.'continuousphp.package');
+            $packageInfo = json_decode($versionFile, true);
+        }
+        return $packageInfo;
     }
 
 }

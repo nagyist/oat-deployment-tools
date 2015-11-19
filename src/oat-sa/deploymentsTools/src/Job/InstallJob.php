@@ -21,28 +21,44 @@
 namespace oat\deploymentsTools\Job;
 
 use oat\deploymentsTools\Service\DeployService;
+use SlmQueue\Job\AbstractJob;
+use SlmQueue\Queue\QueueAwareInterface;
+use SlmQueue\Queue\QueueAwareTrait;
 use SlmQueue\Worker\WorkerEvent;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
-class InstallJob extends AbstractJob
+class InstallJob extends AbstractJob implements ServiceLocatorAwareInterface, QueueAwareInterface
 {
+
+    use QueueAwareTrait;
+    use ServiceLocatorAwareTrait;
 
     public function execute()
     {
         $payload = $this->getContent();
         /** @var DeployService $deployService */
-        $deployService = $this->getServiceLocator()->get('DeployService');
+        $sl = $this->getServiceLocator()->getServiceLocator();
+        $deployService = $sl->get('DeployService');
         $deployService->setBuildFolder($payload['buildFolder']);
 
 
         $result = $deployService->runPhingTask(
             $payload['buildfile'],
             $payload['task'],
-            $payload['propertyfile'],
+            null,
             $payload['packageInfo']
         );
 
-        if ( ! $result['success']) {
+        $notificator = $sl->has('Slack') ? $sl->get('Slack') : $sl->get('BuildLogService');
+        $ref   = $deployService->getPackageInfo($deployService->getSrcFolder())['ref'];
+
+        if (!$result['success']) {
+            $notificator->addError(sprintf('Delivery of %s failed to  %s', $ref, $deployService->getTaoUri()));
+
             return WorkerEvent::JOB_STATUS_FAILURE_RECOVERABLE;
+        } else {
+            $notificator->addInfo(sprintf('%s successfully delivered to  %s', $ref, $deployService->getTaoUri()));
         }
 
     }

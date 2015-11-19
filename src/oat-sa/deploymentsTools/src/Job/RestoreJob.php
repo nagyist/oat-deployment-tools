@@ -20,30 +20,30 @@
 
 namespace oat\deploymentsTools\Job;
 
-use SlmQueue\Job\AbstractJob as BaseAbstractJob;
+use oat\deploymentsTools\Service\DeployService;
+use SlmQueue\Job\AbstractJob;
 use SlmQueue\Queue\QueueAwareInterface;
 use SlmQueue\Queue\QueueAwareTrait;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
-use Zend\ServiceManager\ServiceLocatorInterface;
 
-abstract class AbstractJob extends BaseAbstractJob implements ServiceLocatorAwareInterface, QueueAwareInterface
+class RestoreJob extends  AbstractJob implements ServiceLocatorAwareInterface, QueueAwareInterface
 {
 
     use QueueAwareTrait;
     use ServiceLocatorAwareTrait;
 
-    /**
-     * Set service locator
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @return mixed
-     */
-    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    public function execute()
     {
-        $this->serviceLocator = $serviceLocator->getServiceLocator();
+        $payload = $this->getContent();
+        /** @var DeployService $deployService */
+        $deployService = $this->getServiceLocator()->getServiceLocator()->get('DeployService');
+        $deployService->setBuildFolder($payload['buildFolder']);
 
-        return $this;
+        $result = $deployService->runPhingTask(
+            $payload['buildfile'],
+            'do_restore'
+        );
     }
 
 }

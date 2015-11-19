@@ -21,76 +21,44 @@
 namespace oat\deploymentsTools\Job;
 
 use oat\deploymentsTools\Service\DeployService;
+use SlmQueue\Job\AbstractJob;
+use SlmQueue\Queue\QueueAwareInterface;
+use SlmQueue\Queue\QueueAwareTrait;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
-class SyncJob extends AbstractJob
+class SyncJob extends AbstractJob implements ServiceLocatorAwareInterface, QueueAwareInterface
 {
 
-    public function execute()
-    {
+    use QueueAwareTrait;
+    use ServiceLocatorAwareTrait;
+
+    public function execute(){
+
         $payload = $this->getContent();
         /** @var DeployService $deployService */
-        $deployService = $this->getServiceLocator()->get('DeployService');
+        $deployService = $this->getServiceLocator()->getServiceLocator()->get('DeployService');
         $deployService->setBuildFolder($payload['buildFolder']);
 
         $result = $deployService->runPhingTask(
             $payload['buildfile'],
             'sync_package',
-            $payload['propertyfile'],
+            null,
             $payload['packageInfo']
         );
 
         if ($result['success']) {
             $job            = new InstallJob();
-            $propertyFile   = $this->parseProperties(file_get_contents($payload['destination'] . 'build.properties'));
-            $isTaoInstalled = is_file($propertyFile['tao.root'] . '/config/generis.conf.php');
+            $isTaoInstalled = $deployService->isTaoInstalled();
             $job->setContent([
                 'task'         => $isTaoInstalled ? 'platform_update' : 'platform_install',
                 'buildfile'    => $payload['destination'] . 'build.xml',
-                'propertyfile' => $payload['destination'] . 'build.properties',
                 'buildFolder'  => $payload['buildFolder'],
                 'packageInfo'  => $payload['packageInfo'],
+                'buildId'      => $payload['buildId'],
             ]);
             $this->getQueue()->push($job);
         }
-    }
-
-    /**
-     * @param string $txtProperties
-     *
-     * @return array
-     */
-    private function parseProperties($txtProperties)
-    {
-        $result             = array();
-        $lines              = explode("\n", $txtProperties);
-        $key                = '';
-        $isWaitingOtherLine = false;
-        $value              = '';
-
-        foreach ($lines as $i => $line) {
-            if (empty( $line ) || ( ! $isWaitingOtherLine && strpos($line, '#') === 0 )) {
-                continue;
-            }
-
-            if ( ! $isWaitingOtherLine) {
-                $key   = substr($line, 0, strpos($line, '='));
-                $value = substr($line, strpos($line, '=') + 1, strlen($line));
-            } else {
-                $value .= $line;
-            }
-            /* Check if ends with single '\' */
-            if (strrpos($value, "\\") === strlen($value) - strlen("\\")) {
-                $value              = substr($value, 0, strlen($value) - 1) . "\n";
-                $isWaitingOtherLine = true;
-            } else {
-                $isWaitingOtherLine = false;
-            }
-
-            $result[$key] = $value;
-            unset( $lines[$i] );
-        }
-
-        return $result;
     }
 
 }
