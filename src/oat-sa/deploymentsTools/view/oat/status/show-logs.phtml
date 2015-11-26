@@ -1,0 +1,21 @@
+<p>
+    <a class="btn btn-link btn-xs" href="<?= $this->url('queue'); ?>">Queues</a>
+</p>
+<table class="table table-striped">
+    <tr>
+        <th>
+            Log
+        </th>
+    </tr>
+
+    <?php
+    /** @var \Symfony\Component\Finder\SplFileInfo $log */
+    foreach ($result as $log) { ?>
+        <tr>
+            <td><a target="_blank" href="<?= $this->url('log',
+                    ['file' => rawurlencode($log->getRealPath())]); ?>"><?= $log->getRealPath() ?></a></td>
+        </tr>
+    <?php } ?>
+
+</table>
+

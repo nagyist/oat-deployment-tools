@@ -1,68 +1,140 @@
 <?php
+namespace oat\deploymentsTools;
 
 return array(
     
-    'controllers'     => array(
-        'invokables' => array(
-            'oat\deploymentsTools\Controller\Deploy' => 'oat\deploymentsTools\Controller\DeployController',
-        ),
-    ),
+    'controllers'     => [
+        'invokables' => [
+//            'DeployController' => 'oat\deploymentsTools\Controller\DeployController',
+              'StatusController' => 'oat\deploymentsTools\Controller\StatusController',
+        ],
+    ],
+    'service_manager' => [
+        'factories' => [
+            'BsbPhingService'                => 'BsbPhingService\Service\Factory\PhingServiceFactory',
+            'BsbPhingService.serviceOptions' => 'BsbPhingService\Options\Factory\ServiceOptionsFactory',
+            'BsbPhingService.phingOptions'   => 'BsbPhingService\Options\Factory\PhingOptionsFactory',
+            'DeployService'                  => 'oat\deploymentsTools\Service\Factory\DeployServiceFactory'
+        ],
+    ],
 
-    'router' => array(
-         'routes' => array(
-            'phingService' => array(
+    'router' => [
+         'routes' => [
+            'deploy' => [
                 'type'    => 'segment',
-                'options' => array(
-                     'route'    => '/phingService',
-                     'defaults' => array(
-                         'controller' => 'BsbPhingService\Controller\Index',
-                         'action'     => 'index',
-                     ),
-                ),
-            ),
-            'deploy' => array(
-                'type'    => 'segment',
-                'options' => array(
+                'options' => [
                      'route'    => '/deploy',
-                     'defaults' => array(
-                         'controller' => 'oat\deploymentsTools\Controller\Deploy',
+                     'defaults' => [
+                         'controller' => 'DeployController',
                          'action'     => 'run',
-                     ),
-                ),
-            ),
-         ),
-     ),
-    'console' => array(
-        'router' => array(
-            'routes' => array(
-                'deploy' => array(
-                    'options' => array(
-                         'route'    => 'help',
-                         'defaults' => array(
-                             'controller' => 'oat\deploymentsTools\Controller\Deploy',
-                             'action'     => 'help',
-                         ),
-                    ),
-                ),
-            ),
-        ),
-    
-          
-    ),
-    'view_manager'    => array(
+                     ],
+                ],
+            ],
+
+            'queue' => [
+                'type'    => 'segment',
+                'options' => [
+                     'route'    => '/queue',
+                     'defaults' => [
+                         'controller' => 'StatusController',
+                         'action'     => 'queue',
+                     ],
+                ],
+            ],
+            'logs' => [
+                'type'    => 'segment',
+                'options' => [
+                     'route'    => '/logs',
+                     'defaults' => [
+                         'controller' => 'StatusController',
+                         'action'     => 'showLogs',
+                     ],
+                ],
+            ],
+
+            'log' => [
+                'type'    => 'segment',
+                'options' => [
+                     'route'    => '/logs/show[/:file]',
+                     'defaults' => [
+                         'controller' => 'StatusController',
+                         'action'     => 'log',
+                     ],
+                ],
+            ],
+
+             'restore' => [
+                'type'    => 'segment',
+                'options' => [
+                     'route'    => '/restore[/:dir]',
+                     'defaults' => [
+                         'controller' => 'DeployController',
+                         'action'     => 'restore',
+                     ],
+                ],
+            ],
+         ],
+
+
+    ],
+    'view_manager'    => [
         'display_not_found_reason' => true,
         'display_exceptions'       => true,
         'not_found_template'   => 'error/404',
         'exception_template'   => 'error/index',
-        'template_map' => array(
+        'template_map' => [
                 'error/404'      => __DIR__ . '/../view/error/404.phtml',
                 'error/index'    => __DIR__ . '/../view/error/index.phtml',
                 'layout/layout'  => __DIR__ . '/../view/layout/layout.phtml',
-        ),
-
-        'template_path_stack' => array(
+        ],
+        'strategies' => [
+            'ViewJsonStrategy',
+        ],
+        'template_path_stack' => [
                  __DIR__ . '/../view',
-        ),
-    ),
+        ],
 
+    ],
+
+    'doctrine' => [
+        'driver' => [
+             __NAMESPACE__ . '_driver' => [
+                'class' => 'Doctrine\ORM\Mapping\Driver\AnnotationDriver',
+                'cache' => 'array',
+                'paths' => [
+                    __DIR__ . '/../src/Entity'
+                ],
+             ],
+
+            'orm_default' => [
+                'drivers' => [
+                    __NAMESPACE__ . '\Entity' => __NAMESPACE__ . '_driver'
+                ]
+            ]
+        ]
+    ],
+
+    'EnliteMonolog' => [
+
+        'BuildLogService' => [
+
+            'handlers' => [
+
+                'default' => [
+                    'name' => 'Monolog\Handler\RotatingFileHandler',
+                    'args' => [
+                        'path' => 'data/log/main.log',
+                        'level' => \Monolog\Logger::INFO,
+                        'bubble' => true
+                    ],
+                    'formatter' => [
+                        'name' => 'Monolog\Formatter\LogstashFormatter',
+                        'args' => [
+                            'application' => 'deployment tool',
+                        ],
+                    ],
+                ],
+            ]
+        ],
+    ]
 );

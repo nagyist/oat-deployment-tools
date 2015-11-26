@@ -8,9 +8,13 @@
 return array(
     // This should be an array of module namespaces used in the application.
     'modules' => array(
-        
+        'SlmQueue',
+        'oat\deploymentsTools',
         'BsbPhingService',
-        'oat\deploymentsTools'
+        'DoctrineModule',
+        'DoctrineORMModule',
+        'SlmQueueDoctrine',
+        'EnliteMonolog',
     ),
 
     // These are various options for the listeners attached to the ModuleManager
@@ -30,6 +34,7 @@ return array(
         'config_glob_paths' => array(
             'config/autoload/{{,*.}global,{,*.}local}.php',
         ),
+
 
         // Whether or not to enable a configuration cache.
         // If enabled, the merged configuration will be cached and used in

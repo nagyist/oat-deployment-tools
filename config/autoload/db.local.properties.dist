@@ -1,0 +1,6 @@
+db.user=postgres
+db.name=taodb
+db.pass=
+db.driver=pdo_msql
+db.host=localhost
+db.prefix=taodeploy_

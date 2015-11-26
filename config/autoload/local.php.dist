@@ -12,4 +12,42 @@
  */
 
 return array(
+    'doctrine' => array(
+
+        'connection' => array(
+            // default connection name
+            'orm_default' => array(
+                'driverClass' => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
+                'params'      => array(
+                    'host'     => 'localhost',
+                    'port'     => '3306',
+                    'user'     => '',
+                    'password' => '',
+                    'dbname'   => '',
+                )
+            )
+        )
+    ),
+
+    'EnliteMonolog' => [
+            'Slack' => [
+                'handlers' => [
+
+                    'default' => [
+                        'name' => 'Monolog\Handler\SlackHandler',
+                        'args' => [
+                          'token'     => '',//api must go here from https://api.slack.com/web
+                          'channel'   => '#ci',
+                          'username'  => 'deployment-tool',
+                          'useAttachment' => false,
+                          'iconEmoji' => ':thumbsup:',
+                          'level' => \Monolog\Logger::INFO,
+                        ],
+                        'formatter' => [
+                            'name' => 'Monolog\Formatter\LineFormatter',
+                        ],
+                    ],
+                ]
+            ],
+        ]
 );
