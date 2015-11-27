@@ -20,10 +20,7 @@
 
 namespace oat\deploymentsTools\Controller;
 
-<<<<<<< HEAD
 use oat\deploymentsTools\Job\RestoreJob;
-=======
->>>>>>> feature/continous_deploy
 use oat\deploymentsTools\Job\UnPackJob;
 use oat\deploymentsTools\Service\DeployService;
 use SlmQueue\Queue\QueueAwareInterface;
