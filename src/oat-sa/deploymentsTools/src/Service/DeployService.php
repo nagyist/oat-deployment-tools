@@ -206,7 +206,7 @@ class DeployService implements ServiceLocatorAwareInterface
      */
     public function getTaoUri(){
         $propertyFile = $this->parseProperties(file_get_contents($this->getSrcFolder().'build.properties'));
-        return $propertyFile['module.url'];
+        return $propertyFile['tao.url'];
     }
     /**
      * @param string $txtProperties
