@@ -1,0 +1,8 @@
+<project name="oat-deploy" default="help" basedir=".">
+    <target name="test" description="List available targets">
+        <echo msg="IT s work" />
+
+    </target>
+    
+
+</project>
