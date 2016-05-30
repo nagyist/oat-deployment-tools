@@ -54,6 +54,14 @@ class UnPackJob extends AbstractJob implements ServiceLocatorAwareInterface, Que
                 ['packageInfo' => $packageInfo]);
         }
 
+        //add local db properties
+        $dbProperties = file_get_contents($payload['buildFolder'] . '/tmp/db.properties');
+        $config = new Zend\Config\Config(require 'config/local.php');
+        $password = $config->doctrine->connection->orm_default->params->password;
+        $dbProperties = str_replace('db.pass=', 'db.pass='. $password, $dbProperties);
+        file_put_contents($payload['buildFolder'] . '/tmp/db.properties', $dbProperties);
+        
+
         if ($result['success']) {
             $job = $deployService->isTaoInstalled() ? new BackupJob() : new SyncJob();
             $job->setContent([
